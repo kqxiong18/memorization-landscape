@@ -1026,7 +1026,8 @@ the evolving regulatory landscape, not to constitute legal advice.
 
 
 % =============================================================================
-\bibliographystyle{acl_natbib}
+% \bibliographystyle{acl_natbib} is already issued by acl.sty (line 195);
+% a second call causes BibTeX error "Illegal, another \bibstyle command".
 \bibliography{main}
 
 \newpage
