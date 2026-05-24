@@ -694,15 +694,12 @@ cross-family correlation is explained by measurement attenuation rather than
 conceptual distinctness.
 Under this view, the true-score correlation would be $\tau_{\mathrm{true}}
 = \tau_{\mathrm{obs}} / \sqrt{r_M \cdot r_A}$, where $r_M$ and $r_A$ are the
-reliabilities of the metric and attack families respectively.%
-\footnote{This disattenuation formula is adapted from Pearson's correction for
-attenuation~\citep{spearman1904proof}; it is an approximation when applied to
-Kendall $\tau$, which does not share the same algebraic decomposition as
-Pearson $r$.
-We use the resulting estimate as an illustrative upper bound on the true-score
-correlation, not a formally derived value.
-The sign-inversion argument that follows is entirely independent of this
-approximation.}
+reliabilities of the metric and attack families respectively
+(this formula is adapted from Pearson's correction for
+attenuation~\citep{spearman1904proof}; it is an approximation for Kendall
+$\tau$, which does not share the same algebraic decomposition as Pearson $r$;
+we use the resulting estimate as an illustrative upper bound, not a formally
+derived value---the sign-inversion argument below is independent of it).
 With intra-family $\tau = 0.48$ for forward-pass metrics and $\tau = 0.99$ for
 extraction metrics, the geometric-mean reliability is
 $\sqrt{0.48 \times 0.99} \approx 0.69$, yielding an attenuation-corrected
@@ -2570,18 +2567,19 @@ $\tau_{\text{ZLib}} = +0.122$ ($p = 0.002$, $n=300$).
 For the RLHF-aligned model, both correlations weaken substantially and lose
 significance: $\tau_{\text{Loss}} = +0.057$ ($p = 0.149$) and
 $\tau_{\text{ZLib}} = +0.062$ ($p = 0.112$).
-% REVIEW: NeurIPS-D-new-3 - hedge "does not reduce underlying extractability": sequences are in-distribution but not confirmed training members; conclusion scoped accordingly
+% REVIEW: NeurIPS-D-new-3 - hedged from "confirming that RLHF alignment does not reduce underlying extractability"
+% (nested \replaced{}{} inside \added{} is not supported by the changes package;
+%  hedged text written directly since the whole paragraph is already \added{})
 Crucially, however, the mean greedy EM is nearly identical for both models
-(Base: $0.029$; Aligned: $0.030$; $\Delta\text{EM} = +0.0008$).
-\replaced{This indicates that RLHF alignment does not suppress in-distribution
-greedy generation on this evaluation corpus.
+(Base: $0.029$; Aligned: $0.030$; $\Delta\text{EM} = +0.0008$), indicating
+that RLHF alignment does not suppress in-distribution greedy generation on this
+evaluation corpus.
 Because the WikiText-103 sequences cannot be confirmed as training members of
-\texttt{Mistral-7B-v0.1} (see dataset note above), this result is best
-interpreted as: RLHF does not reduce greedy output probability on
+\texttt{mistralai/Mistral-7B-v0.1} (see dataset note above), this result is
+best interpreted as: RLHF does not reduce greedy output probability on
 in-distribution text; whether verbatim extraction of \emph{confirmed} training
 sequences is equivalently unaffected remains an open question for models whose
-training data is not publicly released.}{confirming
-that RLHF alignment does not reduce underlying extractability.}
+pre-training data is not publicly released.
 The $\tau$ weakening therefore reflects a shift in metric calibration ---
 RLHF fine-tuning alters the loss landscape on neutral text relative to
 extraction probability, but does not erase memorised representations or suppress
