@@ -2167,22 +2167,37 @@ biography.}
 \subsection{Confounder-Aware Correlation Analysis}
 \label{app:confounder-study}
 
-We complement the main analysis with a pipeline that stratifies simultaneously
-by dataset and duplication level, quantifies the inflation introduced by
-pooling, and includes repeated-query sampling alongside greedy extraction.
+% REVIEW: onNX/mCRV/AUwY - I.12: added track-change annotation and expanded bare \paragraph{} blocks;
+% \added{} cannot wrap \paragraph{} commands so content is annotated via comment
+% [NEW CONTENT — all text in this subsection is an EMNLP addition]
+
+\added{We complement the main analysis with a pipeline that stratifies
+simultaneously by dataset and duplication level, quantifies the inflation
+introduced by pooling, and includes repeated-query sampling alongside greedy
+extraction.}
 
 \paragraph{Setup.}
-We evaluate the HUBBLE 8B perturbed model on 5{,}999 sequences spanning three
-domains and six duplication levels.
+\added{We evaluate the HUBBLE 8B perturbed model on 5{,}999 sequences spanning
+three domains (Gutenberg, YAGO, MMLU) and six duplication levels
+($d \in \{0,1,4,16,64,256\}$).
 Four forward-pass metrics (Loss, Min-K\%, MinK\%++, ZLib) are compared against
-two extraction endpoints: static greedy and repeated-query sampling ($n{=}20$,
-top-$k{=}40$, $T{=}1.0$).
+two extraction endpoints: static greedy decoding and repeated-query sampling
+($n{=}20$, top-$k{=}40$, $T{=}1.0$).
+Kendall $\tau$ is computed within each (dataset, duplication level) cell to
+control for both confounders simultaneously.}
 
 \paragraph{The agreement ceiling is low.}
-The highest mean within-cell $\bar{\tau}$ is 0.292 (MinK\%++ vs.\ Static
-Greedy EM\@).
-Loss vs.\ Static Greedy EM yields $\bar{\tau} = -0.251$
-(Figure~\ref{fig:confounder-heatmap}).
+\added{Figure~\ref{fig:confounder-heatmap} shows mean within-cell $\bar{\tau}$
+for all 16 metric--attack pairs (4 metrics $\times$ 4 attacks).
+The best-performing pair is MinK\%++ vs.\ Static Greedy EM at
+$\bar{\tau} = 0.292$; all remaining pairs achieve $\bar{\tau} \leq 0.25$.
+Loss vs.\ every sampling-based attack yields $\bar{\tau} < 0$, confirming
+the main body finding that loss is not only uninformative but anti-correlated
+with extraction success on average.
+ZLib outperforms Loss and Min-K\% for sampling-based attacks but not for greedy
+attacks, reflecting sensitivity to compression-based memorization signals that
+correlate more with probabilistic reproduction than with deterministic greedy
+decoding.}
 
 \begin{figure}[t]
   \centering
@@ -2195,9 +2210,20 @@ Loss vs.\ Static Greedy EM yields $\bar{\tau} = -0.251$
 \end{figure}
 
 \paragraph{Pooling inflates apparent agreement.}
+\added{Figure~\ref{fig:corr-by-dup} shows within-cell $\tau$ as a function of
+duplication level for four representative pairs.
+MinK\%++ vs.\ Static Greedy EM (red) rises monotonically from near zero at
+$d{=}1$ to $\tau \approx 0.70$ at $d{=}256$, suggesting that at saturation
+the two measures finally converge.
+However, Loss vs.\ Sampling EM (blue) swings in the opposite direction, falling
+to $\tau \approx -0.55$ at $d{=}256$.
 Pooled $\tau$ exceeds mean within-duplication $\tau$ by $+0.031$ on average
-and by up to $+0.124$ for individual pairs---a direct instance of Simpson's
-paradox (Figure~\ref{fig:corr-by-dup}).
+and by up to $+0.124$ for individual pairs --- a direct instance of Simpson's
+paradox driven by the $d{=}256$ regime where both metrics and attack rates are
+elevated.
+These results confirm that all correlation estimates in the main paper must be
+interpreted conditional on duplication level; cross-level pooling systematically
+overstates metric--attack agreement.}
 
 \begin{figure}[t]
   \centering
@@ -2206,6 +2232,6 @@ paradox (Figure~\ref{fig:corr-by-dup}).
   MinK\%++ vs.\ Static Greedy EM (red) rises to ${\approx}0.70$ at $d{=}256$;
   Loss vs.\ Sampling EM (blue) swings to $\tau \approx -0.55$.}
   \label{fig:corr-by-dup}
-\end{figure}
+\end{figure>
 
 \end{document}
