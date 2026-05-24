@@ -1710,8 +1710,19 @@ between all metric pairs, computed within each duplication level.
 \subsection{Across- vs.\ Within-Level Correlation Gap}
 \label{app:across-within}
 
-Table~\ref{tab:across-within-gap} shows that pooling across duplication levels
-inflates $\tau$; the mean gap (across $-$ within) is $+0.114$.
+% REVIEW: onNX/mCRV/AUwY - added prose explaining within-cell vs.\ pooled τ inflation and confound
+\added{A common analysis pitfall is to pool sequences across all duplication levels and
+report a single Kendall $\tau$.
+Table~\ref{tab:across-within-gap} shows this inflates $\tau$ by a mean of
+$+0.114$ relative to within-level estimates.
+The inflation is largest for cross-family pairs: Loss vs.\ Greedy EM rises from
+a within-level mean near $0.00$ to a pooled $\tau = 0.21$, and Greedy EM
+vs.\ Prob.\ Extr.\ (any) rises from within-level $\approx 0.69$--$0.83$ to a
+pooled $0.93$.
+The inflation arises because duplication level is a confound: sequences at
+$d{=}256$ score high on both metrics \textit{and} attacks, creating a
+spurious across-level correlation even when within-level agreement is near zero.
+All $\tau$ values reported in the main paper use within-cell estimates.}
 
 \begin{table*}[t]
 \centering
@@ -1741,6 +1752,22 @@ by up to 0.80 for cross-family pairs.}
 \subsection{Scale Dependence}
 \label{app:scale-comparison}
 
+% REVIEW: onNX/mCRV/AUwY - added prose: scale (capacity Factor) modulates M→A; τ inverts at 8B but not 1B
+\added{Model capacity (scale) acts as a Factor that modulates the M$\to$A link.
+Table~\ref{tab:scale-comparison} compares 8B and 1B perturbed HUBBLE models at
+$d{=}256$.
+The 8B model achieves near-ceiling extraction on Gutenberg (0.958) and YAGO
+(0.933), while the 1B model extracts nothing on Gutenberg (0.000) and only 9\%
+on YAGO\@.
+Critically, the Loss--Greedy EM correlation \textit{inverts} at 8B
+($\tau = {-}0.52$) but remains positive or undefined at 1B\@.
+This inversion is a Factor-confounding effect: at 8B saturation, sequences with
+the highest aggregate loss are long sequences that are nonetheless fully
+memorized token-by-token, reversing the expected monotone relationship.
+At 1B, extraction rates are too low for the inversion to emerge.
+This result underscores that a single $\tau$ estimate is not portable across
+model scales.}
+
 \begin{table}[h]
 \centering
 \small
@@ -1762,6 +1789,22 @@ MMLU      & 0.825 & 0.434 & $-$0.24 & $-$0.24 \\
 
 \subsection{Tail Agreement Analysis}
 \label{app:tail-agreement}
+
+% REVIEW: onNX/mCRV/AUwY - added prose: top-10% overlap shows auditor using Loss selects disjoint set from adversary's extraction targets
+\added{Kendall $\tau$ measures global rank agreement.
+A practitioner, however, cares about the \textit{top} of each ranking: which
+sequences are flagged as highest-risk by each measure?
+Table~\ref{tab:tail-agreement} reports the fraction of top-10\% sequences that
+two metrics jointly select (random baseline = 0.10).
+Intra-family agreement (Loss vs.\ Min-K\%, Loss vs.\ ZLib) is consistently
+high ($0.79$--$0.97$), confirming that forward-pass metrics form a coherent
+cluster.
+Cross-family overlap (any forward metric vs.\ Greedy EM) never exceeds $0.08$
+--- \textit{below} the random baseline --- except for MinK\%++ vs.\ Greedy EM
+at $d \in \{64, 256\}$ ($0.41$, $0.38$).
+The practical implication is stark: a risk auditor using Loss to identify the
+``most memorized'' sequences would select a set with essentially zero overlap
+with the sequences most extractable by an adversary.}
 
 \begin{table*}[t]
 \centering
@@ -1790,6 +1833,25 @@ Cross-family overlap never exceeds 0.08, below the random baseline.}
 \subsection{Content-Type Stratification}
 \label{app:content-strat}
 
+% REVIEW: onNX/mCRV/AUwY - added prose: content domain moderates M→A; τ≈0 for literary prose, τ≈0.35 for structured text
+\added{Content domain is a Factor that substantially moderates the M$\to$A link.
+Table~\ref{tab:content-type} reports Kendall $\tau$ stratified by dataset,
+pooling $d \in \{4, 16, 64\}$ to focus on mid-range duplication where both
+metrics and attacks have signal.
+For Gutenberg (literary prose), Loss vs.\ Greedy EM $\tau = 0.03$ ---
+essentially random.
+For YAGO (structured biographies) and MMLU (factual multiple-choice), $\tau$
+rises to $0.37$ and $0.33$ respectively.
+The pattern holds across all forward metrics: cross-family $\tau$ is
+consistently near zero for literary text and moderately positive for structured
+text.
+The likely mechanism is that structured content (biography fields, answer
+tokens) is extracted via precise string matching, which correlates with low
+loss, whereas literary prose memorization is driven by longer-range syntactic
+patterns that loss alone does not capture.
+Metric choice must therefore be matched not only to the attack type but also
+to the content domain of concern.}
+
 \begin{table}[h]
 \centering
 \small
@@ -1812,6 +1874,24 @@ The forward--extraction disconnect is most extreme for Gutenberg ($\tau = 0.03$)
 \subsection{Greedy vs.\ Sampling Extraction}
 \label{app:greedy-sampling}
 
+% REVIEW: onNX/mCRV/AUwY - added prose: greedy and sampling produce different extraction inventories; Attack cannot be collapsed to one procedure
+\added{Greedy decoding and probabilistic sampling are not interchangeable attack
+formats.
+Figure~\ref{fig:greedy-vs-sampling} plots greedy exact match against
+probabilistic extraction rate ($n{=}40$ samples) for each sequence, colored by
+duplication level.
+The distribution is strongly bimodal: sequences cluster near $(0,\,0)$
+(neither attack succeeds) or near $(1.0,\,\cdot)$ (greedy succeeds and
+sampling rate varies).
+At $d{=}16$, sampling discovers $1.7\times$ more extractable sequences than
+greedy, reflecting sequences memorized probabilistically but not deterministically.
+At $d{=}256$, the cluster at Greedy EM $= 1.0$ spreads vertically from 0 to
+near 1.0, showing that even fully deterministically extractable sequences vary
+in how robustly they are reproduced under sampling.
+The Attack component of FMARD therefore cannot be collapsed to a single
+canonical procedure: greedy and sampling attacks probe different aspects of
+what the model has memorized.}
+
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.75\columnwidth]{figures/greedy_vs_sampling.pdf}
@@ -1825,6 +1905,24 @@ The forward--extraction disconnect is most extreme for Gutenberg ($\tau = 0.03$)
 \subsection{Threshold Disagreement}
 \label{app:threshold}
 
+% REVIEW: onNX/mCRV/AUwY - added prose: threshold-based decisions using metrics are miscalibrated at saturation (super-random disagreement at d=256)
+\added{A binary risk decision --- memorized vs.\ not --- requires thresholding a
+continuous metric.
+Figure~\ref{fig:disagree-by-dup} shows the fraction of sequences where a
+median-split threshold on a forward-pass metric disagrees with a median-split
+on Greedy EM, as a function of duplication level.
+At $d \leq 64$, all three forward-pass metrics disagree with Greedy EM at
+approximately the random baseline ($\approx 0.50$), confirming metrics provide
+no directional information about extraction outcomes.
+At $d{=}256$, disagreement spikes to $76.8\%$ (Loss vs.\ Greedy EM) and
+$79.2\%$ (Min-K\% vs.\ Prob.\ Extr.\ any), \textit{exceeding} the random
+baseline.
+This super-random disagreement reflects the anti-correlation in
+\S\ref{app:anticorrelation}: at saturation, sequences with the highest loss are
+nonetheless extracted, so a high-loss threshold selects the \textit{wrong} set.
+Any defense or audit protocol using a fixed threshold on forward-pass metrics
+will be systematically miscalibrated at high duplication levels.}
+
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.75\columnwidth]{figures/disagreement_by_duplication.pdf}
@@ -1837,6 +1935,31 @@ The forward--extraction disconnect is most extreme for Gutenberg ($\tau = 0.03$)
 
 \subsection{YAGO PII Infill: Attack Format Sensitivity}
 \label{app:pii-infill}
+
+% REVIEW: onNX/mCRV/AUwY - added prose (two paragraphs): Attack format dominates PII risk; operationalises A→R link
+% [\added{} cannot wrap multi-paragraph blocks; each paragraph tracked separately]
+\added{The YAGO dataset contains structured biographies, each with seven PII fields
+(email, birthdate, UUID, university, nationality, birthplace, occupation).
+We probe extraction using three attack formats that differ in how much auxiliary
+information the adversary provides: \textit{full prefix} (the entire biography
+up to the target field), \textit{intro prefix} (only the opening sentence),
+and \textit{name only}.
+Table~\ref{tab:yago-infill} reports per-field, per-format accuracy across all
+duplication levels.}
+
+\added{The dominant finding is that Attack format --- a property of the adversary's
+auxiliary information, not of the model --- swings measured risk by up to
+87.6 percentage points (birthdate at $d{=}64$: full prefix $0.994$ vs.\
+intro prefix $0.123$).
+Email accuracy is near-ceiling regardless of format because email addresses
+follow a predictable template; birthdate and UUID, which are semantically
+opaque token strings, require dense prefix conditioning to extract.
+Duplication level has secondary influence for most fields under non-full-prefix
+formats: intro-prefix UUID rises from $0.089$ at $d{=}1$ to $0.787$ at
+$d{=}256$, while intro-prefix email remains stable throughout.
+These results instantiate the Attack$\to$Risk FMARD link: the adversary's
+access model is the dominant determinant of the risk surface, and a single
+aggregate PII risk score conflates qualitatively different threat scenarios.}
 
 \begin{table*}[t]
 \centering
@@ -1892,6 +2015,21 @@ Maximum accuracy swing across formats: 87.6 pp (birthdate at $d{=}64$).}
 \subsection{Standard vs.\ Perturbed Model: MIA Confound Test}
 \label{app:standard-vs-perturbed}
 
+% REVIEW: onNX/mCRV/AUwY - added prose: confound control confirms F→M link is genuine; standard model remains at chance
+\added{A core threat to MIA validity is that high AUC may reflect pre-existing
+distributional differences between member and non-member text rather than
+genuine memorization.
+HUBBLE controls for this by comparing a \textit{perturbed} model (trained on
+the inserted sequences at the specified duplication level) against a
+\textit{standard} model trained on the same corpus but without the inserted
+sequences.
+Table~\ref{tab:mia-auc} confirms the design works: the perturbed model achieves
+AUC $= 0.536$ at $d{=}1$, rising to $1.000$ at $d{=}256$, while the standard
+model remains at chance ($\approx 0.51$) across all duplication levels,
+ruling out distributional confounds as the source of signal.
+This validates that the Factor$\to$Metric link (duplication $\to$ metric
+discriminability) is genuine rather than an artifact of distribution shift.}
+
 \begin{table}[h]
 \centering
 \small
@@ -1916,6 +2054,25 @@ Values averaged across Loss, Min-K\%, ZLib, and all three datasets.}
 \subsection{Anti-Correlation Analysis ($d{=}256$)}
 \label{app:anticorrelation}
 
+% REVIEW: onNX/mCRV/AUwY - added prose: anti-correlation driven by Q4 paradox (high-loss sequences still extractable due to length confound)
+\added{At $d{=}256$, forward-pass metrics and extraction attacks are
+anti-correlated ($\tau = {-}0.52$ for Loss vs.\ Greedy EM on Gutenberg and
+YAGO\@).
+Table~\ref{tab:anticorrelation-quartiles} dissects this by loss quartile on
+MMLU sequences ($n{=}143$).
+Q1--Q3 (the three lowest-loss quartiles) all achieve Greedy EM $\geq 0.857$,
+as expected: low loss predicts extractability.
+The anti-correlation is driven entirely by Q4 (highest loss), where Greedy EM
+is still $0.500$ and ROUGE-L $= 0.886$.
+The most likely explanation is a sequence-length confound: long sequences
+accumulate high aggregate normalized loss while simultaneously having their
+final tokens (e.g., a short factual answer) fully memorized.
+Loss penalizes the full sequence, but extraction targets only the suffix ---
+these are qualitatively different quantities.
+This illustrates how the Factor of sequence length creates a spurious inversion
+in the M$\to$A link at saturation, and why per-token analysis is preferable to
+sequence-level metrics for extraction prediction.}
+
 \begin{table}[ht]
 \centering
 \small
@@ -1937,6 +2094,32 @@ nonetheless extractable at moderate rates.}
 
 \subsection{PII-Level Metric Disagreement}
 \label{app:pii-disagreement}
+
+% REVIEW: onNX/mCRV/AUwY - added prose (two paragraphs): field-level τ far below intra-family; most biographies have mixed PII outcomes
+% [\added{} cannot wrap multi-paragraph blocks; each paragraph tracked separately]
+\added{Forward-pass metrics correlate only weakly with individual PII field
+extraction accuracy.
+Table~\ref{tab:pii-forward-tau} reports mean $|\tau|$ between each
+forward-pass metric and per-field infill accuracy.
+The strongest signal is UUID (full\_prefix) at $|\tau| = 0.19$ for Loss and
+Min-K\%~--- far below the intra-family agreement between Loss and Min-K\%
+($\tau > 0.63$ at all duplication levels, Table~\ref{tab:within-level-heatmaps-data}).
+Fields with predictable structure (email) or low extraction rate (occupation)
+yield $|\tau| < 0.08$.
+The M$\to$A disconnect therefore holds at the PII-field level: knowing a
+biography's aggregate loss does not tell a practitioner which specific fields
+are recoverable.}
+
+\added{Table~\ref{tab:within-bio-disagree} reveals that PII memorization is
+field-grained within a single biography.
+At $d < 64$, virtually all biographies ($\geq 96.9\%$) are ``Mixed''---the
+model recovers some fields but not others for the same person.
+Even at $d{=}256$, $34.8\%$ of biographies remain Mixed.
+The ``All Correct'' rate is near zero for $d \leq 4$ and rises only at high
+duplication, while ``All Wrong'' never occurs at any duplication level tested.
+This rules out the simple model where memorization is an all-or-nothing
+per-document property, and implies that PII risk assessments must be conducted
+at field granularity rather than document granularity.}
 
 \begin{table}[h]
 \centering
