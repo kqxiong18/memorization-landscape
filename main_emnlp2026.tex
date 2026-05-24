@@ -205,39 +205,40 @@ Factors drive what is memorized; Metrics attempt to quantify it; Attacks
 exploit it; Risks constitute the downstream harm; and Defenses intervene on
 specific links.
 % REVIEW: mCRV/AUwY/onNX/g63y - add explicit statement that FMARD links are directional/conceptual, not formally validated causal mechanisms
+% REVIEW: NeurIPS-C5/D-new-2 - fix Condition (1): "necessary precondition" was empirically false (Metrics have signal at d=0); replaced with modulation-based formulation
+% REVIEW: NeurIPS-D-new-4/H - merge three consecutive \added{} paragraphs; add inline SoK differentiation summary directly in main body
 \added{These dependencies are directional and conceptual: FMARD organizes the
 field by the natural flow from root causes to downstream harm rather than
-claiming formally validated causal mechanisms in the interventionist sense.}
-% REVIEW: NeurIPS-C5/D - add operational definition of "directed dependency link" to prevent over-interpretation of the term
-\added{Operationally, a \emph{directed dependency link} $X \to Y$ in FMARD
-asserts that: (1) $X$ is a necessary precondition for $Y$ to have any signal
-(removing $X$ makes $Y$ degenerate), and (2) properties of $X$ modulate the
-strength or character of $Y$ (Factor configuration determines how well Metrics
-predict Attacks).
+claiming formally validated causal mechanisms in the interventionist sense.
+Operationally, a \emph{directed dependency link} $X \to Y$ asserts that
+properties of $X$ predictably modulate the magnitude or direction of the $Y$
+signal across empirically relevant operating conditions---for instance, varying
+Factor configuration changes how well Metrics predict Attacks ($\tau_{M \to A}$
+varies from near-zero at 1B scale to $-0.52$ at 8B saturation in our
+experiments), and changing the Attack type changes which Risks materialise.
 This is weaker than a causal claim---we do not assert that intervening on $X$
-controls $Y$---and stronger than a mere correlation: the link reflects the
-logical structure of the memorization pipeline, independently of any
-statistical association.
-Prior SoK papers organize the same literature but do not trace this dependency
-chain; Appendix~\ref{app:related} provides a structured comparison with
-\citet{hartmann2023sok} and \citet{meeus2025sok} along five dimensions
-(Table~\ref{tab:sok-comparison}).}
+controls $Y$---and stronger than a mere correlation: the link encodes the
+logical direction in which the memorization pipeline flows, with upstream
+components shaping the operating range of downstream ones.
+Unlike \citet{hartmann2023sok}, who catalog definitions and implications
+without quantitatively testing cross-component links, and \citet{meeus2025sok},
+who demonstrate a metric confound without modelling it as a Factor-modulated
+dependency chain, FMARD both predicts and empirically tests how upstream
+components modulate downstream ones
+(Table~\ref{tab:sok-comparison}, Appendix~\ref{app:related}).
+A note on component boundaries: \textit{Metrics} quantify retention properties
+offline from a fixed model; \textit{Attacks} are adversarial procedures that
+consume real resources and model access to produce leakage; and \textit{Risks}
+are the downstream harm consequences of successful attacks.
+The same scoring function (e.g., loss thresholding) can serve as a Metric when
+used offline or as part of an MIA Attack when deployed to classify
+membership---the component assignment depends on evaluation intent and adversary
+capability, not on the function itself.}
 This dependency structure is necessary because, as we show in
 \S\ref{sec:gap} and \S\ref{sec:empirical}, memorization research produces
 conflicting conclusions when studies probe different links under different
 Factor configurations---a pattern that descriptive taxonomies lack the
 structure to diagnose.
-
-% REVIEW: onNX - clarify Metric/Attack/Risk component boundaries; same scoring function can be a Metric or an Attack depending on evaluation intent
-\added{A note on the FMARD component boundaries: \textit{Metrics} quantify
-retention properties offline from a fixed model; \textit{Attacks} are
-adversarial procedures that consume real resources and model access to produce
-leakage; and \textit{Risks} are the real-world harm consequences of successful
-attacks.
-The same scoring function (e.g., loss thresholding) can serve as a Metric
-when used offline or as part of an MIA Attack when deployed to classify
-membership---the component assignment depends on the evaluation intent and
-adversary capability assumed, not on the function itself.}
 
 Appendix~\ref{app:related} expands on prior studies and the specific gaps
 that motivate FMARD\@.
@@ -686,13 +687,22 @@ by Loss overlap with the top-10\% most extractable by greedy exact match at
 Figure~\ref{fig:confounder-heatmap} shows this holds across all 16 metric--attack combinations: the best-performing pair reaches $\bar{\tau} = 0.29$, all others below $0.25$.
 
 % REVIEW: NeurIPS-C2/D2 - explicitly address the noise-attenuation alternative interpretation of τ = 0.08; the sign inversion at d=256 and below-chance tail overlap rule it out
+% REVIEW: NeurIPS-D-new-1 - add footnote acknowledging Pearson disattenuation formula is an approximation for Kendall τ
 \added{An alternative interpretation is that both metric families are individually
 noisy measurements of a single underlying memorization variable, and the weak
 cross-family correlation is explained by measurement attenuation rather than
 conceptual distinctness.
 Under this view, the true-score correlation would be $\tau_{\mathrm{true}}
 = \tau_{\mathrm{obs}} / \sqrt{r_M \cdot r_A}$, where $r_M$ and $r_A$ are the
-reliabilities of the metric and attack families respectively.
+reliabilities of the metric and attack families respectively.%
+\footnote{This disattenuation formula is adapted from Pearson's correction for
+attenuation~\citep{spearman1904proof}; it is an approximation when applied to
+Kendall $\tau$, which does not share the same algebraic decomposition as
+Pearson $r$.
+We use the resulting estimate as an illustrative upper bound on the true-score
+correlation, not a formally derived value.
+The sign-inversion argument that follows is entirely independent of this
+approximation.}
 With intra-family $\tau = 0.48$ for forward-pass metrics and $\tau = 0.99$ for
 extraction metrics, the geometric-mean reliability is
 $\sqrt{0.48 \times 0.99} \approx 0.69$, yielding an attenuation-corrected
@@ -1129,8 +1139,9 @@ frame the Metric$\to$Attack relationship as a modulated link at all.}
 \toprule
 \textbf{Dimension} & \textbf{Hartmann et al.\ 2023} & \textbf{Satvaty et al.\ 2024} & \textbf{Meeus et al.\ 2025} & \textbf{FMARD (this work)} \\
 \midrule
+% REVIEW: NeurIPS-C1 residual - "no chain" was unfair to Hartmann et al.; revised to "no quantitative link testing"
 Covers F$\to$M$\to$A$\to$R$\to$D chain as linked components
-  & Partial (definitions + implications, no chain)
+  & Partial (definitions + implications; no quantitative link testing)
   & No (parallel topics)
   & No (MIA-focused)
   & \textbf{Yes} \\
@@ -2559,15 +2570,25 @@ $\tau_{\text{ZLib}} = +0.122$ ($p = 0.002$, $n=300$).
 For the RLHF-aligned model, both correlations weaken substantially and lose
 significance: $\tau_{\text{Loss}} = +0.057$ ($p = 0.149$) and
 $\tau_{\text{ZLib}} = +0.062$ ($p = 0.112$).
+% REVIEW: NeurIPS-D-new-3 - hedge "does not reduce underlying extractability": sequences are in-distribution but not confirmed training members; conclusion scoped accordingly
 Crucially, however, the mean greedy EM is nearly identical for both models
-(Base: $0.029$; Aligned: $0.030$; $\Delta\text{EM} = +0.0008$), confirming
-that RLHF alignment does not reduce underlying extractability.
+(Base: $0.029$; Aligned: $0.030$; $\Delta\text{EM} = +0.0008$).
+\replaced{This indicates that RLHF alignment does not suppress in-distribution
+greedy generation on this evaluation corpus.
+Because the WikiText-103 sequences cannot be confirmed as training members of
+\texttt{Mistral-7B-v0.1} (see dataset note above), this result is best
+interpreted as: RLHF does not reduce greedy output probability on
+in-distribution text; whether verbatim extraction of \emph{confirmed} training
+sequences is equivalently unaffected remains an open question for models whose
+training data is not publicly released.}{confirming
+that RLHF alignment does not reduce underlying extractability.}
 The $\tau$ weakening therefore reflects a shift in metric calibration ---
 RLHF fine-tuning alters the loss landscape on neutral text relative to
-extraction probability, but does not erase memorised content or suppress the
-M$\to$A link under greedy probing.
+extraction probability, but does not erase memorised representations or suppress
+greedy generation of in-distribution sequences.
 This is consistent with FMARD: RLHF inserts a Defense at the A$\to$output
-interface, leaving the underlying M$\to$A relationship intact.}
+interface; the F$\to$M and M$\to$A links upstream of that interface remain
+largely intact under cooperative greedy probing on in-distribution text.}
 
 % ────────────────────────────────────────────────────────────────────────────
 % I.15  White-Box Soft-Prompt Attacks: Upper Bound on M→A
