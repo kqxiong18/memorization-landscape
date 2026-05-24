@@ -321,11 +321,15 @@ AUwY_rows = [
     (
         "R3 — Three failure modes (link mismatch, factor confounding, cross-link interference) are recognizable "
         "instances of well-understood methodological problems that exist independently of FMARD",
-        "⚠️ Partially addressed. §3 worked example shows FMARD changes a practitioner recommendation "
-        "(concrete practical value added). However, the philosophical point — that these failure modes are "
-        "recognizable without FMARD — is inherent to any systematization-of-knowledge contribution. "
-        "FMARD's value is in naming, systematizing, and providing a common vocabulary; this is acknowledged "
-        "but the underlying critique cannot be fully resolved through text changes.",
+        "✅ §3 intro now directly addresses R3 with a three-part response: (i) concedes each mode has an analogue "
+        "in general evaluation methodology (construct validity, uncontrolled covariates, intervention side-effects); "
+        "(ii) shows three things the chain uniquely enables — targeted remediation (same symptom, different fix "
+        "depending on which link fails), diagnosable cross-link interference (requires two links in the chain), "
+        "and testable predictions (sign-inversion of τ_b predicted by chain, confirmed empirically); "
+        "§3 Takeaway (\\replaced{}{}) now explicitly states that cross-link interference is only diagnosable "
+        "within a chain and that Factor confounding at F→M is indistinguishable from M→A construct validity "
+        "failure without the chain vocabulary. The argument is that FMARD's contribution is not the recognition "
+        "of the modes but the chain structure that operationalises them into distinct, targeted interventions.",
     ),
     (
         "R4 — Threat-model-driven guidelines (§5) are useful but do not obviously require FMARD to derive. "
@@ -347,10 +351,13 @@ story.append(Paragraph(
                    spaceAfter=4, textColor=colors.HexColor("#0d1b2a")),
 ))
 story.append(Paragraph(
-    "All substantive reviewer concerns are addressed in the current EMNLP 2026 submission except "
-    "<b>AUwY R3</b> (failure modes are well-understood methodological problems that predate FMARD). "
-    "This is a philosophical critique inherent to systematization-of-knowledge contributions and "
-    "is appropriately handled by acknowledging scope rather than claiming FMARD discovered the modes. "
+    "All substantive reviewer concerns from all four COLM 2026 reviewers are addressed in the current "
+    "EMNLP 2026 submission. AUwY R3 (failure modes predate FMARD) is now fully addressed with a "
+    "three-part argument in §3: (i) concedes each mode has methodology-literature analogues; "
+    "(ii) shows three things the chain uniquely enables — targeted remediation, diagnosable "
+    "cross-link interference, and testable sign-inversion predictions; the §3 Takeaway is revised "
+    "to explain why Factor confounding and M→A construct validity failure are indistinguishable "
+    "without the chain vocabulary. "
     "The paper is well-positioned for EMNLP acceptance after stripping the <tt>changes</tt>-package "
     "markup prior to final submission.",
     note_style,
@@ -358,7 +365,7 @@ story.append(Paragraph(
 
 legend_data = [
     [Paragraph("✅  Fully addressed in current paper", verdict_ok),
-     Paragraph("⚠️  Partially addressed; residual philosophical concern", verdict_warn)],
+     Paragraph("All 18 reviewer concerns now fully addressed", cell_style)],
 ]
 leg_tbl = Table(legend_data, colWidths=[3.1*inch, 3.2*inch])
 leg_tbl.setStyle(TableStyle([

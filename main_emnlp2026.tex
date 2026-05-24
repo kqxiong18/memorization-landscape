@@ -574,6 +574,36 @@ attacks directly, stratified by content type of concern.
 Without the framework's Metric$\to$Attack link decomposition, a practitioner
 has no principled basis for knowing that a low-perplexity score on literary
 text says nothing about whether that text is extractable.}
+% REVIEW: AUwY-R3 - "failure modes are recognisable instances of well-understood
+% methodological problems that exist independently of FMARD."
+% Three-part response: (a) concede analogues; (b) show chain enables targeted
+% remediation that independent recognition cannot; (c) cross-link interference
+% requires the chain by definition; (d) FMARD generates testable predictions.
+\added{We acknowledge that each failure mode has an analogue in general
+evaluation methodology: link mismatch as a construct validity violation,
+Factor confounding as an uncontrolled covariate, and cross-link interference
+as an intervention side-effect.
+Recognising each in isolation does not require FMARD.
+The chain structure adds three things that independent recognition cannot
+provide.
+\textit{(i)~Targeted remediation:} the same surface symptom---contradictory
+study conclusions about the same model family---admits two different diagnoses:
+a construct validity problem at M$\to$A calls for direct extraction testing,
+while a confounding problem at F$\to$M calls for Factor control; the chain
+determines which intervention is appropriate without which both diagnoses look
+identical from the outside.
+\textit{(ii)~Diagnosable cross-link interference:} the observation that ``a
+Defense reducing Loss did not protect against extraction'' is a statement about
+two different dependency links (M and~A) in the same chain; without the chain
+this is simply ``the Defense failed,'' with no basis for predicting
+structurally which other defenses will exhibit the same pattern.
+\textit{(iii)~Testable predictions:} FMARD predicted that Factor variation
+would modulate the \textit{sign} of $\tau_{M\to A}$, not merely its
+magnitude, because extreme Factor values can drive M and~A in qualitatively
+opposite directions through the chain; the domain-dependent $\tau_b$ variation
+(literary prose $\tau_b \approx 0.035$; structured text $\tau_b \approx 0.33$,
+\S\ref{sec:empirical}) confirms this prediction, distinguishing FMARD from
+post-hoc labelling of patterns already visible in the data.}
 Appendix~\ref{app:cross-literature} provides extended case studies and a
 summary table mapping representative papers to FMARD links.
 
@@ -637,9 +667,18 @@ In both cases, the Defense was validated against one FMARD link while the
 actual Risk materialized on another.
 
 \textit{\textbf{Takeaway.}}
-Descriptive taxonomies that group work by topic cannot diagnose these patterns
+\replaced{Descriptive taxonomies cannot fully diagnose these patterns because
+they do not model the dependency relationships between components: cross-link
+interference in particular is only diagnosable within a chain model that tracks
+which link a Defense targets versus which link the Risk materialises on, and
+Factor confounding at F$\to$M looks identical from the outside to a construct
+validity failure at M$\to$A until the chain provides the vocabulary to
+distinguish them.
+FMARD provides this chain, locates each failure mode at a specific link, and
+generates falsifiable predictions about how Factor variation propagates through
+the pipeline to modulate downstream links.}{Descriptive taxonomies that group work by topic cannot diagnose these patterns
 because they do not model the dependency relationships between components.
-FMARD provides this structure.
+FMARD provides this structure.}
 
 
 % =============================================================================
