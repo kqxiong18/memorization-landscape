@@ -2370,8 +2370,7 @@ at field granularity rather than document granularity.}
 
 \begin{table}[h]
 \centering
-\footnotesize
-\setlength{\tabcolsep}{4pt}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{@{}lccc@{}}
 \toprule
 \textbf{PII Type (format)} & \textbf{Loss} & \textbf{Min-K\%} & \textbf{ZLib} \\
@@ -2384,7 +2383,8 @@ Birthdate (\texttt{full\_prefix})   & 0.09 & 0.08 & 0.09 \\
 Occupation (\texttt{full\_prefix})  & 0.08 & 0.07 & 0.07 \\
 Email (\texttt{full\_prefix})       & 0.04 & 0.04 & 0.04 \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \caption{Mean $|\tau_b|$ between forward-pass metrics and PII infill accuracy.
 Even the strongest signal ($|\tau_b| = 0.19$) is far below intra-family
 agreement ($\tau_b > 0.63$).}
@@ -2543,8 +2543,7 @@ should be interpreted with particular caution.}
 
 \begin{table}[t]
 \centering
-\footnotesize
-\setlength{\tabcolsep}{5pt}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{@{}lcc@{}}
 \toprule
 \textbf{Metric} & \textbf{Kendall $\tau_b$} & \textbf{$p$-value} \\
@@ -2554,7 +2553,8 @@ Min-K\%     & $-0.039$ & $0.156$  \\
 MinK\%++    & $-0.052$ & $0.059$  \\
 ZLib        & $+0.084$ & $0.002$  \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \caption{Kendall $\tau_b$ between forward-pass metrics and greedy
 prefix-extraction EM on 600 WikiText-103 sequences (Pythia-6.9b-deduped).
 Loss and ZLib correlate positively and significantly ($p < 0.05$);
