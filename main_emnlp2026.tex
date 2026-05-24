@@ -690,8 +690,12 @@ by Loss overlap with the top-10\% most extractable by greedy exact match at
 (Table~\ref{tab:tail-agreement}).
 Figure~\ref{fig:confounder-heatmap} shows this holds across all 16 metric--attack combinations: the best-performing pair reaches $\bar{\tau} = 0.29$, all others below $0.25$.
 
-% REVIEW: NeurIPS-C2/D2 - explicitly address the noise-attenuation alternative interpretation of τ = 0.08; the sign inversion at d=256 and below-chance tail overlap rule it out
-% REVIEW: NeurIPS-D-new-1 - add footnote acknowledging Pearson disattenuation formula is an approximation for Kendall τ
+% REVIEW: NeurIPS-C2/D2 - address noise-attenuation alternative interpretation of τ = 0.08
+% Falsifier: domain-dependent τ variation at moderate duplication (d∈{4,16,64}) where
+% length confounds are not dominant. The d=256 sign inversion is a length confound
+% (§3.3) and does NOT provide independent evidence against noise attenuation;
+% removed that claim here.
+% REVIEW: NeurIPS-D-new-1 - Pearson disattenuation formula is an approximation for Kendall τ
 \added{An alternative interpretation is that both metric families are individually
 noisy measurements of a single underlying memorization variable, and the weak
 cross-family correlation is explained by measurement attenuation rather than
@@ -703,20 +707,37 @@ reliabilities of the metric and attack families respectively
 attenuation~\citep{spearman1904proof}; it is an approximation for Kendall
 $\tau$, which does not share the same algebraic decomposition as Pearson $r$;
 we use the resulting estimate as an illustrative upper bound, not a formally
-derived value---the sign-inversion argument below is independent of it).
+derived value).
 With intra-family $\tau = 0.48$ for forward-pass metrics and $\tau = 0.99$ for
 extraction metrics, the geometric-mean reliability is
 $\sqrt{0.48 \times 0.99} \approx 0.69$, yielding an attenuation-corrected
 estimate $\tau_{\mathrm{true}} \approx 0.08 / 0.69 \approx 0.12$.
-This remains low, but more importantly, the noise-attenuation account predicts
-that the corrected correlation should be \emph{positive everywhere}---noise can
-only dampen a true positive signal, not invert it.
-The observed sign inversion at $d{=}256$ ($\tau = -0.52$ for Loss vs.\ Greedy
-EM) directly falsifies this prediction: no amount of attenuation correction
-can convert a negative observed correlation into a positive underlying signal.
-The below-chance tail overlap at all duplication levels (cross-family top-10\%
-agreement $= 0.077 <$ random baseline $0.10$) further confirms that the two
-families do not merely measure the same variable at different precision levels.
+This remains low, but more importantly, a noise-attenuation model of a single
+shared construct predicts a fixed positive true-score correlation scaled only
+by measurement reliability---it does not predict the \emph{domain-dependent}
+variation we observe at moderate duplication.
+At $d \in \{4,16,64\}$---where both families have genuine variance and
+sequence-length effects are not yet dominant---cross-family $\tau$ differs
+qualitatively by content type: $\tau \approx 0.035$ on literary prose
+(Gutenberg) versus $\tau \approx 0.33$ on structured text (MMLU; see
+\S\ref{sec:empirical}).
+A noise model cannot produce this domain gap without positing that the
+underlying construct is itself domain-dependent---which is precisely the FMARD
+claim.
+The same logic applies to scale: at 1B parameters, cross-family
+$\tau \approx 0.00$ across all duplication levels, while at 8B intermediate
+duplication $\tau \approx 0.3$--$0.4$; a single shared construct with fixed
+reliability would yield the same true-score correlation at both scales.
+The below-chance tail overlap at $d \geq 16$, where extraction has genuine
+variance (cross-family top-10\% agreement $\leq 0.08 <$ random baseline
+$0.10$; Table~\ref{tab:tail-agreement}), provides additional evidence from the
+perspective of practical risk auditing.
+We note that the sign inversion at $d{=}256$ ($\tau = {-}0.52$ for Loss
+vs.\ Greedy EM) is separately attributable to a sequence-length confound
+(\S\ref{sec:empirical}): because length pushes Loss and extraction in opposite
+directions at saturation, the anti-correlation is consistent with a
+noise-attenuation account of the length-adjusted signal and does not constitute
+independent evidence against construct distinctness.
 The two families are therefore not interchangeable; FMARD's separation of the
 Metric and Attack components reflects a genuine empirical distinction.}
 
