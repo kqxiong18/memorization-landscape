@@ -16,13 +16,10 @@
 \usepackage{microtype}
 \usepackage{inconsolata}
 
-% ── Revision tracking: NO-OPS for clean submission ───────────────────────────
-% \added{X}→X, \deleted{X}→(nothing), \replaced{X}{Y}→X
-% The changes package is disabled; macros are no-ops so all tracked markup
-% in the document body renders as final accepted text.
-\newcommand{\added}[1]{#1}
-\newcommand{\deleted}[1]{}
-\newcommand{\replaced}[2]{#1}
+% ── Revision tracking ────────────────────────────────────────────────────────
+% soul is already loaded above, so when changes loads it internally it is a
+% no-op -- the \showhyphens conflict with microtype is therefore avoided.
+\usepackage[commandnameprefix=always]{changes}
 
 % ── Math / tables / figures ───────────────────────────────────────────────────
 \usepackage{amsmath}
