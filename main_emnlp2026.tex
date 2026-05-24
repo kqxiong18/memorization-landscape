@@ -856,8 +856,11 @@ A quartile analysis confirms this---the lowest-loss quartile achieves 97.2\%
 greedy extraction, the highest-loss quartile achieves 50.0\%---demonstrating
 that a single Factor (sequence length) can \textit{invert} the
 Metric$\to$Attack relationship at specific operating points.
-Figure~\ref{fig:disagree-by-dup} shows this manifests as super-random threshold disagreement at $d{=}256$ ($76.8\%$ for Loss vs.\ Greedy EM, exceeding the $50\%$ random baseline).
-
+\replaced{This manifests as super-random threshold disagreement at $d{=}256$
+($76.8\%$ for Loss vs.\ Greedy EM, exceeding the $50\%$ random baseline;
+Appendix Figure~\ref{fig:disagree-by-dup})}{Figure~\ref{fig:disagree-by-dup} shows this manifests as super-random threshold disagreement at $d{=}256$ ($76.8\%$ for Loss vs.\ Greedy EM, exceeding the $50\%$ random baseline)}.
+% REVIEW: PAGE-LIMIT - fig:disagree-by-dup moved to Appendix \S\ref{app:threshold}; \iffalse preserves source history.
+\iffalse
 \begin{figure}[!ht]
   \centering
   \includegraphics[width=0.75\columnwidth]{figures/disagreement_by_duplication.pdf}
@@ -867,13 +870,18 @@ Figure~\ref{fig:disagree-by-dup} shows this manifests as super-random threshold 
   (Min-K\% vs.\ Prob.\ Extr.\ any), exceeding the random baseline.}
   \label{fig:disagree-by-dup}
 \end{figure}
+\fi
 
 Taken together, these results confirm that content domain, model scale, and
 duplication level all modulate the Metric$\to$Attack link, explaining why
 cross-study comparisons that do not control for these Factors yield
 contradictory conclusions (Table~\ref{tab:summary}).
-Figure~\ref{fig:corr-by-dup} shows within-cell $\tau_b$ by duplication level: even the best pair (MinK\%++ vs.\ Greedy EM) rises to $\tau_b \approx 0.70$ only at $d{=}256$, while Loss vs.\ Sampling EM swings to $-0.55$.
-
+\replaced{Within-cell $\tau_b$ by duplication level shows the best pair
+(MinK\%++ vs.\ Greedy EM) rises to $\tau_b \approx 0.70$ only at $d{=}256$,
+while Loss vs.\ Sampling EM swings to $-0.55$
+(Appendix Figure~\ref{fig:corr-by-dup})}{Figure~\ref{fig:corr-by-dup} shows within-cell $\tau_b$ by duplication level: even the best pair (MinK\%++ vs.\ Greedy EM) rises to $\tau_b \approx 0.70$ only at $d{=}256$, while Loss vs.\ Sampling EM swings to $-0.55$}.
+% REVIEW: PAGE-LIMIT - fig:corr-by-dup moved to Appendix \S\ref{app:setup}; \iffalse preserves source history.
+\iffalse
 \begin{figure}[!ht]
   \centering
   \includegraphics[width=0.85\columnwidth]{figures/correlation_by_duplication_target.pdf}
@@ -882,6 +890,7 @@ Figure~\ref{fig:corr-by-dup} shows within-cell $\tau_b$ by duplication level: ev
   Loss vs.\ Sampling EM (blue) swings to $\tau_b \approx -0.55$.}
   \label{fig:corr-by-dup}
 \end{figure}
+\fi
 
 
 % -----------------------------------------------------------------------------
@@ -935,8 +944,11 @@ $|\tau_b| < 0.12$ between document-level Metrics and field-level extraction
 outcomes means no forward-pass metric score predicts which specific PII fields
 will be extractable, making attack-format variation a structural diagnostic
 gap that document-level audits cannot close.}
-Figure~\ref{fig:greedy-vs-sampling} further shows that greedy and probabilistic sampling attacks target different populations: at $d{=}16$, sampling discovers $1.7\times$ more extractable sequences than greedy decoding.
-
+\replaced{Greedy and probabilistic sampling attacks target different populations:
+at $d{=}16$, sampling discovers $1.7\times$ more extractable sequences than
+greedy decoding (Appendix Figure~\ref{fig:greedy-vs-sampling})}{Figure~\ref{fig:greedy-vs-sampling} further shows that greedy and probabilistic sampling attacks target different populations: at $d{=}16$, sampling discovers $1.7\times$ more extractable sequences than greedy decoding}.
+% REVIEW: PAGE-LIMIT - fig:greedy-vs-sampling moved to Appendix \S\ref{app:greedy-sampling}; \iffalse preserves source history.
+\iffalse
 \begin{figure}[!ht]
   \centering
   \includegraphics[width=0.75\columnwidth]{figures/greedy_vs_sampling.pdf}
@@ -946,6 +958,7 @@ Figure~\ref{fig:greedy-vs-sampling} further shows that greedy and probabilistic 
   greedy.}
   \label{fig:greedy-vs-sampling}
 \end{figure}
+\fi
 
 \begin{table}[t]
 \centering
@@ -2200,7 +2213,15 @@ The Attack component of FMARD therefore cannot be collapsed to a single
 canonical procedure: greedy and sampling attacks probe different aspects of
 what the model has memorized.}
 
-% Figure~\ref{fig:greedy-vs-sampling} moved to main body §3.5.
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=0.75\columnwidth]{figures/greedy_vs_sampling.pdf}
+  \caption{Greedy exact match vs.\ probabilistic extraction rate ($n{=}40$,
+  top-$k{=}40$), colored by duplication level.
+  At $d{=}16$, sampling discovers $1.7\times$ more extractable sequences than
+  greedy.}
+  \label{fig:greedy-vs-sampling}
+\end{figure}
 
 \subsection{Threshold Disagreement}
 \label{app:threshold}
@@ -2223,7 +2244,15 @@ nonetheless extracted, so a high-loss threshold selects the \textit{wrong} set.
 Any defense or audit protocol using a fixed threshold on forward-pass metrics
 will be systematically miscalibrated at high duplication levels.}
 
-% Figure~\ref{fig:disagree-by-dup} moved to main body §3.3.
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=0.75\columnwidth]{figures/disagreement_by_duplication.pdf}
+  \caption{Threshold disagreement (median-split) between forward-pass metrics
+  and Greedy EM\@.
+  At $d{=}256$, disagreement reaches 76.8\% (Loss vs.\ Greedy EM) and 79.2\%
+  (Min-K\% vs.\ Prob.\ Extr.\ any), exceeding the random baseline.}
+  \label{fig:disagree-by-dup}
+\end{figure}
 
 \subsection{YAGO PII Infill: Attack Format Sensitivity}
 \label{app:pii-infill}
@@ -2511,7 +2540,14 @@ These results confirm that all correlation estimates in the main paper must be
 interpreted conditional on duplication level; cross-level pooling systematically
 overstates metric--attack agreement.}
 
-% Figure~\ref{fig:corr-by-dup} moved to main body §3.3.
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=0.85\columnwidth]{figures/correlation_by_duplication_target.pdf}
+  \caption{Within-cell Kendall's $\tau_b$ as a function of duplication level.
+  MinK\%++ vs.\ Static Greedy EM (red) rises to ${\approx}0.70$ at $d{=}256$;
+  Loss vs.\ Sampling EM (blue) swings to $\tau_b \approx -0.55$.}
+  \label{fig:corr-by-dup}
+\end{figure}
 
 % ────────────────────────────────────────────────────────────────────────────
 % I.13  External Validation on Pythia-6.9b-deduped
