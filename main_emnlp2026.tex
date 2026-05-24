@@ -622,7 +622,8 @@ A Factor intervention inadvertently opens a new Attack$\to$Risk pathway.
 Machine unlearning methods are typically evaluated by showing reduced loss on
 the forget set---a Metric-level change~\citep{yao2024machine}.
 However, HUBBLE's own unlearning evaluation shows no method reaches target
-extraction performance~\citep{wei2025hubble}.
+extraction performance (defined as zero greedy exact match on the forget set,
+the standard success criterion for unlearning)~\citep{wei2025hubble}.
 Similarly, alignment reduces standard extraction by $50\times$ but divergence
 attacks bypass this reduction
 entirely~\citep{nasr2023scalableextractiontrainingdata}.
@@ -777,6 +778,15 @@ which may partly inflate $\tau_b$ independently of the metric--attack
 relationship; nevertheless, the near-zero value on literary text indicates
 that loss-based metrics carry essentially no predictive signal for extraction
 on that domain.
+This also implies that metric choice is domain-sensitive: not all seven
+metrics are equally appropriate across domains.
+Appendix~\ref{app:external-validation} shows that on naturally occurring
+low-duplication text (Pythia/WikiText-103), Min-K\%~Prob and MinK\%++ are
+non-significant and negative, while Loss and ZLib remain positively
+significant---indicating that calibrated count-based metrics can invert in
+natural (non-synthetic) settings and should not be used as primary metrics
+for auditing real pre-trained models without validation on the relevant
+content type.
 
 \textbf{2.~Model scale.}
 At 1B parameters, cross-family $\tau_b \approx 0.00$ across all duplication
@@ -873,6 +883,12 @@ At $d{=}256$, birthdate extraction reaches 100\% under full-prefix prompting,
 12.4\% under introductory prefix, and 15.7\% under name-only prompting.
 The adversary's auxiliary information---a property of the Attack
 configuration, not of the model---is a dominant determinant of observed Risk.
+While HUBBLE establishes that adversary capability modulates extraction
+rate~\citep{wei2025hubble}, the new finding here is quantitative: per-field
+$|\tau_b| < 0.12$ between document-level Metrics and field-level extraction
+outcomes means no forward-pass metric score predicts which specific PII fields
+will be extractable, making attack-format variation a structural diagnostic
+gap that document-level audits cannot close.
 Figure~\ref{fig:greedy-vs-sampling} further shows that greedy and probabilistic sampling attacks target different populations: at $d{=}16$, sampling discovers $1.7\times$ more extractable sequences than greedy decoding.
 
 \begin{figure}[!ht]
@@ -1102,8 +1118,9 @@ During \textbf{supervised fine-tuning (SFT)}, data is typically smaller and
 more concentrated, so the model may memorize a larger fraction of it.
 DP becomes more practical via PEFT methods~\citep{ma2024efficient}, but
 loss-based MIA may lose discriminative power: the pre-trained model already
-assigns low loss to fine-tuning data, compressing the signal on which MIA
-relies~\citep{duan2024membership}.
+assigns low loss to fine-tuning data, shrinking the loss gap between members
+and non-members (the signal MIA relies on) and reducing its discriminative
+power~\citep{duan2024membership}.
 
 During \textbf{alignment (RLHF)}, alignment makes memorized content harder to
 extract under standard prompts while leaving the underlying memorization
