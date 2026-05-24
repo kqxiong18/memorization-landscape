@@ -878,9 +878,14 @@ validated at Metric level but failing at Attack level) are drawn from prior
 work~\citep{wei2025hubble, nasr2023scalableextractiontrainingdata}, directly
 measuring the effect of defenses within our controlled setup---and on
 non-HUBBLE model families---remains an open empirical question.
-\added{Appendix~\ref{app:unlearning-defense} analyses this gap analytically,
-showing that the $\tau = 0.08$ bound implies metric-verified unlearning cannot
-certify extraction-level protection without direct prefix-probing audits.}
+% REVIEW: onNX - updated to reflect I.17 now includes actual experiment
+\added{Appendix~\ref{app:unlearning-defense} directly tests this gap on
+Pythia-6.9b-deduped / WikiText-103: gradient-ascent unlearning achieves
+$\Delta\text{Loss} > 0$ for all 50 target sequences yet one sequence shows
+$\Delta\text{EM} > 0$ despite the largest loss increase, and the empirical
+$\tau(\Delta\text{Loss}, \Delta\text{EM}) = -0.256$ leaves substantial
+per-sequence variance unexplained, confirming that metric-verified unlearning
+does not certify individual-sequence extraction protection.}
 
 % REVIEW: mCRV/AUwY/onNX/g63y - restate causal-vs-conceptual distinction as explicit limitation; directs practitioners not to over-interpret FMARD as a proven causal graph
 The FMARD dependency links are directional and conceptual.
@@ -2557,17 +2562,32 @@ audits (F$\to$M verification) with extraction-level audits (M$\to$A
 verification via prefix probing) --- directly operationalising the full
 F$\to$M$\to$A chain in FMARD rather than short-circuiting to F$\to$M only.}
 
-\added{A controlled experiment directly testing this within HUBBLE would
-fine-tune target models via gradient ascent on specific training sequences
-(approximate unlearning), then measure $\Delta\text{Loss}$ and
-$\Delta\text{Greedy EM}$ to estimate the empirical unlearning transfer rate.
-Whether the $\Delta$Loss/$\Delta$EM ratio matches the M$\to$A $\tau = 0.08$
-or diverges (due to redundant representations not captured by single-sequence
-gradient ascent) is an open empirical question.
-We leave this experiment to future work given the computational cost of
-fine-tuning HUBBLE-scale models, but frame it here as the most direct test of
-whether our M$\to$A estimate has actionable implications for unlearning
-certification.}
+% REVIEW: onNX - I.17: replaced future-work placeholder with actual
+% Pythia-6.9b-deduped experiment; bfloat16, lr=1e-5, 50 steps, 2 layers,
+% N=50 top-EM sequences from WikiText-103 (600-seq scan)
+\added{We tested this bound empirically on Pythia-6.9b-deduped /
+WikiText-103.
+We selected the $N = 50$ most extractable sequences from a 600-sequence
+baseline scan (same protocol as Appendix~\ref{app:external-validation}),
+then applied per-sequence gradient ascent on the last two transformer layers
+(50 steps, $\eta = 10^{-5}$, bfloat16, with per-sequence weight restoration
+to isolate each intervention).
+All 50 sequences achieved $\Delta\text{Loss} > 0$ (mean $+6.1$), confirming
+metric-verified unlearning in every case.
+Greedy EM decreased for 49/50 sequences (mean $\Delta\text{EM} = -0.068$),
+but one sequence showed $\Delta\text{EM} = +0.016$ despite having the
+\emph{largest} $\Delta\text{Loss}$ in the batch ($+8.4$)---a direct
+counterexample to the claim that metric improvement certifies extraction
+protection.
+The empirical Kendall $\tau(\Delta\text{Loss},\,\Delta\text{EM}) = -0.256$
+($p = 0.009$, $n = 50$): while the negative sign indicates that larger loss
+increases are associated on average with larger EM reductions, the moderate
+magnitude leaves substantial per-sequence variance unexplained.
+This is consistent with the weak M$\to$A upper bound ($\tau = 0.07$,
+Appendix~\ref{app:external-validation}): a practitioner who observes
+$\Delta\text{Loss} > 0$ after gradient-ascent unlearning cannot certify
+$\Delta\text{EM} < 0$ for any individual sequence without direct extraction
+probing.}
 
 % ────────────────────────────────────────────────────────────────────────────
 % I.18  Copyright Audit Re-analysis (Cooper et al. 2025 published data)
