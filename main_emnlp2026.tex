@@ -9,9 +9,9 @@
 \usepackage{latexsym}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-% soul must load before microtype: the changes package loads soul internally,
-% which redefines \showhyphens; if microtype loads first it CheckCommands the
-% original definition and then soul's redefinition triggers a conflict error.
+% soul must load before microtype: both are loaded explicitly here, and soul
+% redefines \showhyphens, which microtype \CheckCommands -- loading soul first
+% prevents the conflict error.
 \usepackage{soul}
 \usepackage{microtype}
 \usepackage{inconsolata}
@@ -82,8 +82,8 @@ retention and operational attacks that test extractability target different
 properties of memorization and need not agree.
 We examine this prediction on the HUBBLE model suite, evaluating seven metrics
 on 21k sequences across three risk domains.
-Cross-family correlation averages $\tau = 0.08$ but varies qualitatively by
-content domain ($\tau \approx 0.035$ for literary text; $\tau \approx 0.33$
+Cross-family correlation averages $\tau_b = 0.08$ but varies qualitatively by
+content domain ($\tau_b \approx 0.035$ for literary text; $\tau_b \approx 0.33$
 for structured text) and model scale---the Factor-dependent pattern, not the
 mean, is the central finding.
 We further show that PII memorization operates at field granularity: virtually
@@ -151,7 +151,7 @@ suite~\citep{wei2025hubble} (\S\ref{sec:empirical}).
 Computing seven metrics across 21{,}000 sequences and three risk domains, we
 observe:
 \begin{itemize}[nosep]
-  \item Statistical and extraction metrics show weak correlation ($\tau = 0.08$,
+  \item Statistical and extraction metrics show weak correlation ($\tau_b = 0.08$,
     $p < 10^{-4}$), suggesting that high retention scores do not reliably
     indicate high extraction risk.
   \item The relationship between the two families varies with model scale
@@ -221,13 +221,14 @@ claiming formally validated causal mechanisms in the interventionist sense.
 Operationally, a \emph{directed dependency link} $X \to Y$ asserts that
 properties of $X$ predictably modulate the magnitude or direction of the $Y$
 signal across empirically relevant operating conditions---for instance, varying
-Factor configuration changes how well Metrics predict Attacks ($\tau_{M \to A}$
+Factor configuration changes how well Metrics predict Attacks ($\tau_{b,\, M \to A}$
 varies from near-zero at 1B scale to $-0.52$ at 8B saturation in our
 experiments), and changing the Attack type changes which Risks materialise.
 This is weaker than a causal claim---we do not assert that intervening on $X$
-controls $Y$---and stronger than a mere correlation: the link encodes the
-logical direction in which the memorization pipeline flows, with upstream
-components shaping the operating range of downstream ones.
+controls $Y$---and directional by construction: the upstream component shapes
+the operating range of the downstream one, reflecting the natural temporal and
+logical order of the memorization pipeline (training factors precede
+measurement, measurement precedes exploitation).
 Unlike \citet{hartmann2023sok}, who catalog definitions and implications
 without quantitatively testing cross-component links, and \citet{meeus2025sok},
 who demonstrate a metric confound without modelling it as a Factor-modulated
@@ -259,7 +260,7 @@ systemization for each component.
 \label{sec:factors}
 
 Factors are variables that determine how much and what a model memorizes.
-The literature identifies six primary factors (Table~\ref{tab:factors});
+The literature identifies seven primary factors (Table~\ref{tab:factors});
 Appendix~\ref{app:factors} provides the full review.
 
 % REVIEW: g63y - add Feldman 2020 theoretical grounding; paper was cited narrowly before, now added as primary motivation for why memorization arises
@@ -331,6 +332,7 @@ Data duplication  & $\uparrow\uparrow$ & Superlinear: 10$\times$ dup $\to$ 1000$
 Model capacity    & $\uparrow$         & Log-linear scaling~\citep{carlini2023quantifyingmemorizationneurallanguage} \\
 Sequence length   & $\uparrow$         & 33\%$\to$65\% as prefix 50$\to$450 tokens~\citep{carlini2023quantifyingmemorizationneurallanguage} \\
 Decoding method   & $\updownarrow$     & Sampling $2\times$ greedy extraction~\citep{yu2023bag} \\
+Tokenization/content & $\updownarrow$  & Larger BPE vocabulary $\uparrow$ named-entity memorization~\citep{kharitonov2021bpe} \\
 Training duration & $\uparrow$         & 2$\times$ epochs $\to$ ${\sim}3\times$ generation~\citep{kandpal2022deduplicatingtrainingdatamitigates} \\
 Alignment (RLHF)  & $\downarrow$*      & Suppresses extraction; divergence bypasses~\citep{nasr2023scalableextractiontrainingdata} \\
 \bottomrule
@@ -685,8 +687,9 @@ and need not agree.
 Within each family, metrics are consistent: forward-pass metrics achieve mean
 intra-family $\tau = 0.48$, and extraction metrics correlate at up to
 $\tau = 0.99$.
-However, cross-family correlation averages $\tau = 0.08$
-($p < 10^{-4}$, Kendall $\tau$ $z$-test), indicating the two families rank
+However, cross-family correlation averages $\tau_b = 0.08$
+($p < 10^{-4}$, Kendall $\tau_b$ $z$-test; $\tau_b$ corrects for ties arising
+from the binary exact-match outcome), indicating the two families rank
 sequences in largely independent orders.
 This independence extends to the tails: at $d \geq 16$, where extraction has
 genuine variance, the top-10\% most memorized sequences by Loss overlap with
@@ -712,7 +715,7 @@ attenuation~\citep{spearman1904proof}; it is an approximation for Kendall
 $\tau$, which does not share the same algebraic decomposition as Pearson $r$;
 we use the resulting estimate as an illustrative upper bound, not a formally
 derived value).
-With intra-family $\tau = 0.48$ for forward-pass metrics and $\tau = 0.99$ for
+With intra-family $\tau_b = 0.48$ for forward-pass metrics and $\tau_b = 0.99$ for
 extraction metrics, the geometric-mean gives
 $\sqrt{0.48 \times 0.99} \approx 0.69$, yielding an attenuation-corrected
 estimate $\tau_{\mathrm{true}} \approx 0.08 / 0.69 \approx 0.12$
@@ -725,10 +728,10 @@ shared construct predicts a fixed positive true-score correlation scaled only
 by measurement reliability---it does not predict the \emph{domain-dependent}
 variation we observe at moderate duplication.
 At $d \in \{4,16,64\}$---where both families have genuine variance and
-sequence-length effects are not yet dominant---cross-family $\tau$ differs
-qualitatively by content type: $\tau \approx 0.035$ on literary prose
-(Gutenberg) versus $\tau \approx 0.33$ on structured text (MMLU; see
-\S\ref{sec:empirical}).
+sequence-length effects are not yet dominant---cross-family $\tau_b$ differs
+qualitatively by content type: $\tau_b \approx 0.035$ on literary prose
+(Gutenberg) versus $\tau_b \approx 0.33$ on structured text (MMLU; see
+\S\ref{sec:factor-shape} below, where these values are reported).
 A noise model cannot produce this domain gap without positing that the
 underlying construct is itself domain-dependent---which is precisely the FMARD
 claim.
@@ -736,9 +739,9 @@ The below-chance tail overlap at $d \geq 16$, where extraction has genuine
 variance (cross-family top-10\% agreement $\leq 0.08 <$ random baseline
 $0.10$; Table~\ref{tab:tail-agreement}), provides additional evidence from the
 perspective of practical risk auditing.
-We note that the sign inversion at $d{=}256$ ($\tau = {-}0.52$ for Loss
+We note that the sign inversion at $d{=}256$ ($\tau_b = {-}0.52$ for Loss
 vs.\ Greedy EM) is separately attributable to a sequence-length confound
-(\S\ref{sec:empirical}): because length pushes Loss and extraction in opposite
+(\S\ref{sec:factor-shape} below): because length pushes Loss and extraction in opposite
 directions at saturation, the anti-correlation is consistent with a
 noise-attenuation account of the length-adjusted signal and does not constitute
 independent evidence against construct distinctness.
@@ -758,37 +761,40 @@ Metric and Attack components reflects a genuine empirical distinction.}
 
 % -----------------------------------------------------------------------------
 \subsection{How Do Factors Shape the Metric--Attack Relationship?}
+\label{sec:factor-shape}
 
 FMARD predicts that Factors modulate not only the magnitude of memorization
 but also the relationship between Metrics and Attacks.
 We test this along three dimensions.
 
 \textbf{1.~Content domain.}
-Cross-family $\tau$ varies substantially by data type: $\tau \approx 0.035$
-for Gutenberg (free-form literary text) versus $\tau \approx 0.33$ for MMLU
+Cross-family $\tau_b$ varies substantially by data type: $\tau_b \approx 0.035$
+for Gutenberg (free-form literary text) versus $\tau_b \approx 0.33$ for MMLU
 (structured questions).
 We note that MMLU's structured answer tokens (typically a letter or short
 phrase) have higher base extraction rates than Gutenberg literary prose,
-which may partly inflate $\tau$ independently of the metric--attack
+which may partly inflate $\tau_b$ independently of the metric--attack
 relationship; nevertheless, the near-zero value on literary text indicates
 that loss-based metrics carry essentially no predictive signal for extraction
 on that domain.
 
 \textbf{2.~Model scale.}
-At 1B parameters, cross-family $\tau \approx 0.00$ across all duplication
-levels.
+At 1B parameters, cross-family $\tau_b \approx 0.00$ across all duplication
+levels; we note this value is consistent with a floor effect (greedy EM rates
+at 1B approach zero on literary text, making rank correlation degenerate) and
+therefore does not independently establish construct distinctness at this scale.
 At 8B, moderate positive correlation emerges at intermediate duplication
-($\tau \approx 0.3$--$0.4$) before inverting to negative correlation at
-$d{=}256$ ($\tau = -0.52$).
+($\tau_b \approx 0.3$--$0.4$) before inverting to negative correlation at
+$d{=}256$ ($\tau_b = -0.52$).
 The same experimental design applied at two scales yields qualitatively
 opposing conclusions about whether Metrics predict Attacks.
 
 \textbf{3.~Duplication at saturation.}
-At $d{=}256$, Loss and greedy extraction exhibit $\tau = -0.52$: the sequences
+At $d{=}256$, Loss and greedy extraction exhibit $\tau_b = -0.52$: the sequences
 Loss ranks as most memorized are the \textit{least} extractable.
 This inversion is attributable to sequence length: Loss correlates positively
-with token count ($\tau = +0.78$), while greedy exact match correlates
-negatively ($\tau = -0.47$), as longer suffixes are harder to reproduce
+with token count ($\tau_b = +0.78$), while greedy exact match correlates
+negatively ($\tau_b = -0.47$), as longer suffixes are harder to reproduce
 verbatim.
 A quartile analysis confirms this---the lowest-loss quartile achieves 97.2\%
 greedy extraction, the highest-loss quartile achieves 50.0\%---demonstrating
@@ -853,6 +859,12 @@ Forward-pass metrics, which assign a single score per document, predict
 per-field extraction success at $|\tau| < 0.12$.
 The granularity at which Risk materializes is finer than the granularity at
 which Metrics operate.
+We note that at $d{=}0$ (unduped insertions), high email extraction rates
+(0.65--0.68 under intro/name prefix) may partly reflect the model generating
+contextually plausible email addresses from biographical context rather than
+reproducing verbatim memorized content; this would constitute an inference
+risk~\citep{staab2024memorizationviolatingprivacyinference} rather than
+verbatim extraction, and reinforces the case for per-field attack evaluation.
 
 \textbf{2.~Adversary capability determines observed Risk.}
 Attack prompt format modulates measured PII accuracy by up to 88 percentage
@@ -881,7 +893,7 @@ Figure~\ref{fig:greedy-vs-sampling} further shows that greedy and probabilistic 
 \# & \textbf{FMARD Link} & \textbf{Observation} \\
 \midrule
 1 & Metric $\to$ Attack &
-  Cross-family $\tau = 0.08$; top-10\% overlap below random baseline \\
+  Cross-family $\tau_b = 0.08$; top-10\% overlap below random baseline \\
 2 & Factor $\to$ (M$\to$A) &
   Correlation varies by scale (${\approx}0.00$ at 1B; inverts at 8B $d{=}256$) \\
 3 & Factor $\to$ Metric &
@@ -903,7 +915,7 @@ Without FMARD, the observation that loss does not predict extraction is a
 standalone negative result.
 With FMARD, it becomes a structured diagnosis: the Factor$\to$Metric link is
 intact ($\Delta$AUC $> 0.45$), but the Metric$\to$Attack link is weak
-($\tau = 0.08$) and Factor-dependent.
+($\tau_b = 0.08$) and Factor-dependent.
 This decomposition identifies \textit{where} memorization risk assessment
 breaks down and yields remedial actions: evaluate the Attack link, control for
 relevant Factors, and match evaluations to a threat model.
@@ -924,15 +936,15 @@ evidence in this paper.
 \textbf{Threat Model} & \textbf{Key Evidence} & \textbf{Recommended Protocol} \\
 \midrule
 Copyright infringement
-  & Loss $\tau \approx 0.035$ with extraction on literary text~(\S\ref{sec:empirical}); book-level variation~\citep{cooper2025extractingmemorizedpiecescopyrighted}
+  & Loss $\tau_b \approx 0.035$ with extraction on literary text~(\S\ref{sec:empirical}); book-level variation~\citep{cooper2025extractingmemorizedpiecescopyrighted}
   & Extraction attacks on the content type of concern; loss-based pre-screening is insufficient \\
 \addlinespace
 PII leakage
-  & Per-field $|\tau| < 0.12$ with document-level metrics; attack format swings risk by 88~pp~(\S\ref{sec:attack-reveal})
+  & Per-field $|\tau_b| < 0.12$ with document-level metrics; attack format swings risk by 88~pp~(\S\ref{sec:attack-reveal})
   & Per-field evaluation under multiple attack formats; do not aggregate to per-document scores \\
 \addlinespace
 Regulatory compliance (unlearning)
-  & Cross-family $\tau = 0.08$; metric-verified unlearning does not certify extraction protection~(\S\ref{app:unlearning-defense})
+  & Cross-family $\tau_b = 0.08$; metric-verified unlearning does not certify extraction protection~(\S\ref{app:unlearning-defense})
   & Supplement metric-level audits with extraction probing; $\Delta$Loss alone does not imply $\Delta$EM \\
 \bottomrule
 \end{tabular}
@@ -958,8 +970,10 @@ disagree.
 
 Our controlled study on HUBBLE confirms a central prediction of the framework:
 statistical metrics and operational attacks capture different aspects of
-memorization, with a weak and Factor-dependent correlation ($\tau = 0.08$,
-varying from $-0.53$ to $+0.42$ across configurations).
+memorization, with a weak and Factor-dependent correlation ($\tau_b = 0.08$,
+varying from $-0.52$ [Loss vs.\ Greedy EM, $d{=}256$, length-confounded]
+to $+0.42$ [MinK\%++ vs.\ Greedy EM, intermediate duplication] across
+configurations).
 Combined with the finding that forward-pass metrics detect genuine
 memorization ($\Delta$AUC $> 0.45$) while failing to predict extraction
 outcomes, these results establish that retention and extractability are
