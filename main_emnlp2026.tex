@@ -9,6 +9,10 @@
 \usepackage{latexsym}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
+% soul must load before microtype: the changes package loads soul internally,
+% which redefines \showhyphens; if microtype loads first it CheckCommands the
+% original definition and then soul's redefinition triggers a conflict error.
+\usepackage{soul}
 \usepackage{microtype}
 \usepackage{inconsolata}
 
