@@ -561,7 +561,7 @@ cross-link interference---and illustrate each with cases from the literature.
 \added{A concrete illustration of FMARD's practical value: without FMARD, a
 practitioner auditing copyright risk would naturally select perplexity as a
 memorization metric (cheap, widely used, well-understood).
-FMARD reveals that on literary text, Loss achieves $\tau \approx 0.035$ with
+FMARD reveals that on literary text, Loss achieves $\tau_b \approx 0.035$ with
 extraction outcomes (\S\ref{sec:empirical}), providing near-zero predictive
 signal for extraction risk.
 The FMARD-guided recommendation is qualitatively different: use extraction
@@ -754,9 +754,9 @@ Metric and Attack components reflects a genuine empirical distinction.}
 \begin{figure}[!ht]
   \centering
   \includegraphics[width=0.85\columnwidth]{figures/attack_metric_heatmap_target.pdf}
-  \caption{Mean within-cell Kendall's $\tau$ between forward-pass metrics
+  \caption{Mean within-cell Kendall's $\tau_b$ between forward-pass metrics
   (columns) and extraction attacks (rows).
-  The best pair (MinK\%++ vs.\ Static Greedy EM) reaches $\bar{\tau} = 0.29$;
+  The best pair (MinK\%++ vs.\ Static Greedy EM) reaches $\bar{\tau}_b = 0.29$;
   most pairs are near-zero or negative.}
   \label{fig:confounder-heatmap}
 \end{figure}
@@ -828,14 +828,14 @@ Taken together, these results confirm that content domain, model scale, and
 duplication level all modulate the Metric$\to$Attack link, explaining why
 cross-study comparisons that do not control for these Factors yield
 contradictory conclusions (Table~\ref{tab:summary}).
-Figure~\ref{fig:corr-by-dup} shows within-cell $\tau$ by duplication level: even the best pair (MinK\%++ vs.\ Greedy EM) rises to $\tau \approx 0.70$ only at $d{=}256$, while Loss vs.\ Sampling EM swings to $-0.55$.
+Figure~\ref{fig:corr-by-dup} shows within-cell $\tau_b$ by duplication level: even the best pair (MinK\%++ vs.\ Greedy EM) rises to $\tau_b \approx 0.70$ only at $d{=}256$, while Loss vs.\ Sampling EM swings to $-0.55$.
 
 \begin{figure}[!ht]
   \centering
   \includegraphics[width=0.85\columnwidth]{figures/correlation_by_duplication_target.pdf}
-  \caption{Within-cell Kendall's $\tau$ as a function of duplication level.
+  \caption{Within-cell Kendall's $\tau_b$ as a function of duplication level.
   MinK\%++ vs.\ Static Greedy EM (red) rises to ${\approx}0.70$ at $d{=}256$;
-  Loss vs.\ Sampling EM (blue) swings to $\tau \approx -0.55$.}
+  Loss vs.\ Sampling EM (blue) swings to $\tau_b \approx -0.55$.}
   \label{fig:corr-by-dup}
 \end{figure}
 
@@ -868,7 +868,7 @@ At $d \leq 4$, 100\% of YAGO biographies exhibit mixed PII extractability:
 some fields are recoverable (email: $>$99\%) while others are not (birthdate:
 ${\sim}10\%$).
 Forward-pass metrics, which assign a single score per document, predict
-per-field extraction success at $|\tau| < 0.12$.
+per-field extraction success at $|\tau_b| < 0.12$.
 The granularity at which Risk materializes is finer than the granularity at
 which Metrics operate.
 \added{We note that at $d{=}0$ (unduped insertions), high email extraction rates
@@ -1044,7 +1044,7 @@ We did not evaluate white-box attacks (soft-prompt optimization) due to
 computational cost; extending the analysis to this attack family is critical,
 as it represents the upper bound on adversary capability.
 \added{Appendix~\ref{app:whitebox-attacks} argues analytically that
-$\tau = 0.08$ under greedy extraction is a conservative lower bound, and that
+$\tau_b = 0.08$ under greedy extraction is a conservative lower bound, and that
 a gradient-equipped adversary would likely observe a stronger M$\to$A signal.}
 
 % REVIEW: onNX - defense section is survey-only; explicitly acknowledge this as a limitation rather than a feature
@@ -1061,7 +1061,7 @@ non-HUBBLE model families---remains an open empirical question.
 Pythia-6.9b-deduped / WikiText-103: gradient-ascent unlearning achieves
 $\Delta\text{Loss} > 0$ for all 50 target sequences yet one sequence shows
 $\Delta\text{EM} > 0$ despite the largest loss increase, and the empirical
-$\tau(\Delta\text{Loss}, \Delta\text{EM}) = -0.256$ leaves substantial
+$\tau_b(\Delta\text{Loss}, \Delta\text{EM}) = -0.256$ leaves substantial
 per-sequence variance unexplained, confirming that metric-verified unlearning
 does not certify individual-sequence extraction protection.}
 
@@ -1221,7 +1221,7 @@ Empirically tests M$\to$A link
   & No
   & No
   & Indirectly (shows AUC inflation, not $\tau$ vs.\ extraction)
-  & \textbf{Yes ($\tau = 0.08$)} \\
+  & \textbf{Yes ($\tau_b = 0.08$)} \\
 Identifies Factor-dependent modulation of M$\to$A
   & No
   & No
@@ -1317,7 +1317,7 @@ length and memorization~\citep{carlini2023quantifyingmemorizationneurallanguage}
 proportionally with prefix token count.
 Sequence length creates a structural confound between metric families because
 it pushes Loss and extraction in opposite directions---the anti-correlation at
-$d{=}256$ ($\tau = -0.52$; \S\ref{sec:empirical}) is a Simpson's paradox
+$d{=}256$ ($\tau_b = -0.52$; \S\ref{sec:empirical}) is a Simpson's paradox
 driven entirely by this uncontrolled Factor.
 
 \subsection{Tokenization}
@@ -1647,7 +1647,7 @@ variation across 50 books and 17 open-weight LLMs: most LLMs do not memorize
 most books, but Llama~3.1~70B memorizes some books almost entirely.
 
 Our empirical results expose a domain-specific gap: on Gutenberg passages,
-forward-pass metrics show $\tau \approx 0.035$ with extraction outcomes,
+forward-pass metrics show $\tau_b \approx 0.035$ with extraction outcomes,
 meaning loss-based copyright audits provide false assurance.
 
 \subsection{Legal Landscape}
@@ -1670,7 +1670,7 @@ GDPR's right to erasure requires that personal data be deletable upon request.
 Memorized content is distributed across model parameters in ways that make
 precise removal technically infeasible with current
 methods~\citep{schwarzschild2024rethinking}.
-Our empirical finding that Metrics and Attacks are weakly correlated ($\tau =
+Our empirical finding that Metrics and Attacks are weakly correlated ($\tau_b =
 0.08$) means Metric-only validation of unlearning provides little assurance of
 actual compliance.
 
@@ -1882,7 +1882,7 @@ attacks~\citep{nasr2023scalableextractiontrainingdata}.
 \addlinespace
 This work (\S\ref{sec:empirical}) & Metric$\to$Attack & Scale (1B vs.\ 8B) & $\tau$ changes sign with scale & Factor confounding \\
 \addlinespace
-This work (\S\ref{sec:empirical}) & Metric$\to$Attack & Content domain & $\tau$: 0.035 (literary) to 0.33 (structured) & Factor confounding \\
+This work (\S\ref{sec:empirical}) & Metric$\to$Attack & Content domain & $\tau_b$: 0.035 (literary) to 0.33 (structured) & Factor confounding \\
 \addlinespace
 \citet{debenedetti2024privacy} & Defense$\to$Attack & Deduplication & Creates membership side channel & Cross-link interference \\
 \addlinespace
@@ -1956,11 +1956,11 @@ between all metric pairs, computed within each duplication level.
 \begin{figure*}[t]
   \centering
   \includegraphics[width=\textwidth]{figures/within_level_correlations.pdf}
-  \caption{Within-level pairwise Kendall's $\tau$ across all seven metrics at
+  \caption{Within-level pairwise Kendall's $\tau_b$ across all seven metrics at
   each duplication level $d \in \{0,1,4,16,64,256\}$.
-  Forward-pass metrics form a tight cluster (up to $\tau = 0.97$ at $d{=}256$),
+  Forward-pass metrics form a tight cluster (up to $\tau_b = 0.97$ at $d{=}256$),
   while their correlation with extraction metrics inverts to strong
-  anti-correlation ($\tau = -0.53$) at $d{=}256$.}
+  anti-correlation ($\tau_b = -0.52$) at $d{=}256$.}
   \label{fig:within-level-heatmaps}
 \end{figure*}
 
@@ -1969,17 +1969,17 @@ between all metric pairs, computed within each duplication level.
 
 % REVIEW: onNX/mCRV/AUwY - added prose explaining within-cell vs.\ pooled τ inflation and confound
 \added{A common analysis pitfall is to pool sequences across all duplication levels and
-report a single Kendall $\tau$.
-Table~\ref{tab:across-within-gap} shows this inflates $\tau$ by a mean of
+report a single Kendall $\tau_b$.
+Table~\ref{tab:across-within-gap} shows this inflates $\tau_b$ by a mean of
 $+0.114$ relative to within-level estimates.
 The inflation is largest for cross-family pairs: Loss vs.\ Greedy EM rises from
-a within-level mean near $0.00$ to a pooled $\tau = 0.21$, and Greedy EM
+a within-level mean near $0.00$ to a pooled $\tau_b = 0.21$, and Greedy EM
 vs.\ Prob.\ Extr.\ (any) rises from within-level $\approx 0.69$--$0.83$ to a
 pooled $0.93$.
 The inflation arises because duplication level is a confound: sequences at
 $d{=}256$ score high on both metrics \textit{and} attacks, creating a
 spurious across-level correlation even when within-level agreement is near zero.
-All $\tau$ values reported in the main paper use within-cell estimates.}
+All $\tau_b$ values reported in the main paper use within-cell estimates.}
 
 \begin{table*}[t]
 \centering
@@ -2017,7 +2017,7 @@ The 8B model achieves near-ceiling extraction on Gutenberg (0.958) and YAGO
 (0.933), while the 1B model extracts nothing on Gutenberg (0.000) and only 9\%
 on YAGO\@.
 Critically, the Loss--Greedy EM correlation \textit{inverts} at 8B
-($\tau = {-}0.52$) but remains positive or undefined at 1B\@.
+($\tau_b = {-}0.52$) but remains positive or undefined at 1B\@.
 This inversion is a Factor-confounding effect: at 8B saturation, sequences with
 the highest aggregate loss are long sequences that are nonetheless fully
 memorized token-by-token, reversing the expected monotone relationship.
@@ -2030,7 +2030,7 @@ model scales.}
 \small
 \begin{tabular}{lcccc}
 \toprule
-& \multicolumn{2}{c}{\textbf{Greedy EM}} & \multicolumn{2}{c}{$\tau$\textbf{(Loss, Greedy EM)}} \\
+& \multicolumn{2}{c}{\textbf{Greedy EM}} & \multicolumn{2}{c}{$\tau_b$\textbf{(Loss, Greedy EM)}} \\
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}
 \textbf{Dataset} & \textbf{8B} & \textbf{1B} & \textbf{8B} & \textbf{1B} \\
 \midrule
@@ -2092,14 +2092,14 @@ Cross-family overlap never exceeds 0.08, below the random baseline.}
 
 % REVIEW: onNX/mCRV/AUwY - added prose: content domain moderates M→A; τ≈0 for literary prose, τ≈0.35 for structured text
 \added{Content domain is a Factor that substantially moderates the M$\to$A link.
-Table~\ref{tab:content-type} reports Kendall $\tau$ stratified by dataset,
+Table~\ref{tab:content-type} reports Kendall $\tau_b$ stratified by dataset,
 pooling $d \in \{4, 16, 64\}$ to focus on mid-range duplication where both
 metrics and attacks have signal.
-For Gutenberg (literary prose), Loss vs.\ Greedy EM $\tau = 0.03$ ---
+For Gutenberg (literary prose), Loss vs.\ Greedy EM $\tau_b = 0.03$ ---
 essentially random.
-For YAGO (structured biographies) and MMLU (factual multiple-choice), $\tau$
+For YAGO (structured biographies) and MMLU (factual multiple-choice), $\tau_b$
 rises to $0.37$ and $0.33$ respectively.
-The pattern holds across all forward metrics: cross-family $\tau$ is
+The pattern holds across all forward metrics: cross-family $\tau_b$ is
 consistently near zero for literary text and moderately positive for structured
 text.
 The likely mechanism is that structured content (biography fields, answer
@@ -2108,10 +2108,10 @@ loss, whereas literary prose memorization is driven by longer-range syntactic
 patterns that loss alone does not capture.
 We note that MMLU and YAGO also have higher base extraction rates than
 Gutenberg at matched duplication levels, which increases the variance of the
-EM variable and may partly inflate $\tau$ independently of the
+EM variable and may partly inflate $\tau_b$ independently of the
 metric--attack relationship; the near-zero value for Gutenberg is robust to
 this concern since the inflation would if anything bias toward a larger
-positive $\tau$.
+positive $\tau_b$.
 Metric choice must therefore be matched not only to the attack type but also
 to the content domain of concern.}
 
@@ -2129,8 +2129,8 @@ Min-K\% & Greedy EM  & 0.03 & 0.37 & 0.33 \\
 Greedy EM & Prob.\ Extr. & 1.00 & 0.88 & 0.86 \\
 \bottomrule
 \end{tabular}
-\caption{Kendall's $\tau$ by dataset (pooling $d \in \{4,16,64\}$).
-The forward--extraction disconnect is most extreme for Gutenberg ($\tau = 0.03$).}
+\caption{Kendall's $\tau_b$ by dataset (pooling $d \in \{4,16,64\}$).
+The forward--extraction disconnect is most extreme for Gutenberg ($\tau_b = 0.03$).}
 \label{tab:content-type}
 \end{table}
 
@@ -2303,7 +2303,7 @@ Values averaged across Loss, Min-K\%, ZLib, and all three datasets.}
 
 % REVIEW: onNX/mCRV/AUwY - added prose: anti-correlation driven by Q4 paradox (high-loss sequences still extractable due to length confound)
 \added{At $d{=}256$, forward-pass metrics and extraction attacks are
-anti-correlated ($\tau = {-}0.52$ for Loss vs.\ Greedy EM on Gutenberg and
+anti-correlated ($\tau_b = {-}0.52$ for Loss vs.\ Greedy EM on Gutenberg and
 YAGO\@).
 Table~\ref{tab:anticorrelation-quartiles} dissects this by loss quartile on
 MMLU sequences ($n{=}143$).
@@ -2346,13 +2346,13 @@ nonetheless extractable at moderate rates.}
 % [\added{} cannot wrap multi-paragraph blocks; each paragraph tracked separately]
 \added{Forward-pass metrics correlate only weakly with individual PII field
 extraction accuracy.
-Table~\ref{tab:pii-forward-tau} reports mean $|\tau|$ between each
+Table~\ref{tab:pii-forward-tau} reports mean $|\tau_b|$ between each
 forward-pass metric and per-field infill accuracy.
-The strongest signal is UUID (full\_prefix) at $|\tau| = 0.19$ for Loss and
+The strongest signal is UUID (\texttt{full\_prefix}) at $|\tau_b| = 0.19$ for Loss and
 Min-K\%~--- far below the intra-family agreement between Loss and Min-K\%
-($\tau > 0.63$ at all duplication levels, Table~\ref{tab:within-level-heatmaps-data}).
+($\tau_b > 0.63$ at all duplication levels, Table~\ref{tab:within-level-heatmaps-data}).
 Fields with predictable structure (email) or low extraction rate (occupation)
-yield $|\tau| < 0.08$.
+yield $|\tau_b| < 0.08$.
 The M$\to$A disconnect therefore holds at the PII-field level: knowing a
 biography's aggregate loss does not tell a practitioner which specific fields
 are recoverable.}
@@ -2370,23 +2370,24 @@ at field granularity rather than document granularity.}
 
 \begin{table}[h]
 \centering
-\small
-\begin{tabular}{lccc}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lccc@{}}
 \toprule
 \textbf{PII Type (format)} & \textbf{Loss} & \textbf{Min-K\%} & \textbf{ZLib} \\
 \midrule
-UUID (full\_prefix)        & 0.19 & 0.19 & 0.13 \\
-University (full\_prefix)  & 0.17 & 0.16 & 0.13 \\
-Birthplace (full\_prefix)  & 0.13 & 0.13 & 0.05 \\
-Email (name\_only)         & 0.12 & 0.10 & 0.10 \\
-Birthdate (full\_prefix)   & 0.09 & 0.08 & 0.09 \\
-Occupation (full\_prefix)  & 0.08 & 0.07 & 0.07 \\
-Email (full\_prefix)       & 0.04 & 0.04 & 0.04 \\
+UUID (\texttt{full\_prefix})        & 0.19 & 0.19 & 0.13 \\
+University (\texttt{full\_prefix})  & 0.17 & 0.16 & 0.13 \\
+Birthplace (\texttt{full\_prefix})  & 0.13 & 0.13 & 0.05 \\
+Email (\texttt{name\_only})         & 0.12 & 0.10 & 0.10 \\
+Birthdate (\texttt{full\_prefix})   & 0.09 & 0.08 & 0.09 \\
+Occupation (\texttt{full\_prefix})  & 0.08 & 0.07 & 0.07 \\
+Email (\texttt{full\_prefix})       & 0.04 & 0.04 & 0.04 \\
 \bottomrule
 \end{tabular}
-\caption{Mean $|\tau|$ between forward-pass metrics and PII infill accuracy.
-Even the strongest signal ($|\tau| = 0.19$) is far below intra-family
-agreement ($\tau > 0.63$).}
+\caption{Mean $|\tau_b|$ between forward-pass metrics and PII infill accuracy.
+Even the strongest signal ($|\tau_b| = 0.19$) is far below intra-family
+agreement ($\tau_b > 0.63$).}
 \label{tab:pii-forward-tau}
 \end{table}
 
@@ -2434,11 +2435,11 @@ Kendall $\tau$ is computed within each (dataset, duplication level) cell to
 control for both confounders simultaneously.}
 
 \paragraph{The agreement ceiling is low.}
-\added{Figure~\ref{fig:confounder-heatmap} shows mean within-cell $\bar{\tau}$
+\added{Figure~\ref{fig:confounder-heatmap} shows mean within-cell $\bar{\tau}_b$
 for all 16 metric--attack pairs (4 metrics $\times$ 4 attacks).
 The best-performing pair is MinK\%++ vs.\ Static Greedy EM at
-$\bar{\tau} = 0.292$; all remaining pairs achieve $\bar{\tau} \leq 0.25$.
-Loss vs.\ every sampling-based attack yields $\bar{\tau} < 0$, confirming
+$\bar{\tau}_b = 0.292$; all remaining pairs achieve $\bar{\tau}_b \leq 0.25$.
+Loss vs.\ every sampling-based attack yields $\bar{\tau}_b < 0$, confirming
 the main body finding that loss is not only uninformative but anti-correlated
 with extraction success on average.
 ZLib outperforms Loss and Min-K\% for sampling-based attacks but not for greedy
@@ -2449,14 +2450,14 @@ decoding.}
 % Figure~\ref{fig:confounder-heatmap} moved to main body §3.2.
 
 \paragraph{Pooling inflates apparent agreement.}
-\added{Figure~\ref{fig:corr-by-dup} shows within-cell $\tau$ as a function of
+\added{Figure~\ref{fig:corr-by-dup} shows within-cell $\tau_b$ as a function of
 duplication level for four representative pairs.
 MinK\%++ vs.\ Static Greedy EM (red) rises monotonically from near zero at
-$d{=}1$ to $\tau \approx 0.70$ at $d{=}256$, suggesting that at saturation
+$d{=}1$ to $\tau_b \approx 0.70$ at $d{=}256$, suggesting that at saturation
 the two measures finally converge.
 However, Loss vs.\ Sampling EM (blue) swings in the opposite direction, falling
-to $\tau \approx -0.55$ at $d{=}256$.
-Pooled $\tau$ exceeds mean within-duplication $\tau$ by $+0.031$ on average
+to $\tau_b \approx -0.55$ at $d{=}256$.
+Pooled $\tau_b$ exceeds mean within-duplication $\tau_b$ by $+0.031$ on average
 and by up to $+0.124$ for individual pairs --- a direct instance of Simpson's
 paradox driven by the $d{=}256$ regime where both metrics and attack rates are
 elevated.
@@ -2515,13 +2516,13 @@ The present experiment establishes only that, on in-distribution-style text
 where both metrics and extraction rates have variance, the M$\to$A correlation
 is positive and significant.}
 
-\added{Table~\ref{tab:i13-tau} reports Kendall $\tau$ between each metric and
+\added{Table~\ref{tab:i13-tau} reports Kendall $\tau_b$ between each metric and
 greedy EM on Pythia-6.9b-deduped.
-Loss ($\tau = +0.070$, $p = 0.012$) and ZLib ($\tau = +0.084$, $p = 0.002$)
+Loss ($\tau_b = +0.070$, $p = 0.012$) and ZLib ($\tau_b = +0.084$, $p = 0.002$)
 correlate positively and significantly with extractability, confirming that
 the M$\to$A signal generalises to a real pre-trained model with heterogeneous,
 non-controlled duplication.
-Notably, Min-K\% ($\tau = -0.039$, $p = 0.156$) and MinK\%++ ($\tau = -0.052$,
+Notably, Min-K\% ($\tau_b = -0.039$, $p = 0.156$) and MinK\%++ ($\tau_b = -0.052$,
 $p = 0.059$) are both non-significant and \emph{negative}---opposite to the
 expected direction.
 This inversion suggests that normalisation-based metrics may be calibrated
@@ -2529,9 +2530,9 @@ for membership inference on high-duplication training data; on WikiText-103,
 where most sequences appear at most once, the relative vocabulary-likelihood
 signal they exploit does not track prefix-extraction success.
 Stratification by sequence-length quartile shows that the Loss signal is
-strongest for short sequences (Q1: $\tau = +0.148$, $n{=}150$) and near zero
-for the second quartile (Q2: $\tau = +0.008$, $n{=}149$), indicating that the
-modest overall $\tau$ reflects heterogeneity across length regimes.
+strongest for short sequences (Q1: $\tau_b = +0.148$, $n{=}150$) and near zero
+for the second quartile (Q2: $\tau_b = +0.008$, $n{=}149$), indicating that the
+modest overall $\tau_b$ reflects heterogeneity across length regimes.
 Taken together, these results support the FMARD claim that M$\to$A is a
 genuine but data-regime-sensitive association: loss-based metrics provide
 a consistent positive signal, while normalisation-based metrics are fragile
@@ -2542,10 +2543,11 @@ should be interpreted with particular caution.}
 
 \begin{table}[t]
 \centering
-\small
-\begin{tabular}{lcc}
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{@{}lcc@{}}
 \toprule
-\textbf{Metric} & \textbf{Kendall $\tau$} & \textbf{$p$-value} \\
+\textbf{Metric} & \textbf{Kendall $\tau_b$} & \textbf{$p$-value} \\
 \midrule
 Loss        & $+0.070$ & $0.012$  \\
 Min-K\%     & $-0.039$ & $0.156$  \\
@@ -2553,11 +2555,11 @@ MinK\%++    & $-0.052$ & $0.059$  \\
 ZLib        & $+0.084$ & $0.002$  \\
 \bottomrule
 \end{tabular}
-\caption{Kendall $\tau$ between forward-pass metrics and greedy prefix-extraction
-EM on 600 WikiText-103 sequences using Pythia-6.9b-deduped.
-Loss and ZLib correlate positively and significantly ($p < 0.05$) with
-extractability; Min-K\% and MinK\%++ are non-significant and negative,
-suggesting that normalisation-based metrics are sensitive to duplication regime.}
+\caption{Kendall $\tau_b$ between forward-pass metrics and greedy
+prefix-extraction EM on 600 WikiText-103 sequences (Pythia-6.9b-deduped).
+Loss and ZLib correlate positively and significantly ($p < 0.05$);
+Min-K\% and MinK\%++ are non-significant and negative, indicating
+normalisation-based metrics are sensitive to duplication regime.}
 \label{tab:i13-tau}
 \end{table}
 
@@ -2582,10 +2584,10 @@ how the model responds to extraction prompts without changing the underlying
 pre-trained weight distributions that drive Metric scores
 (loss, perplexity, Min-K\%).}
 
-\added{Two competing effects determine the net impact on M$\to$A $\tau$.
+\added{Two competing effects determine the net impact on M$\to$A $\tau_b$.
 First, cooperative extraction (naive greedy completion) is suppressed:
 aligned models deflect or refuse extraction prompts, reducing EM under
-cooperative probing and collapsing $\tau$ toward zero in this regime.
+cooperative probing and collapsing $\tau_b$ toward zero in this regime.
 Second, adversarial extraction is not equivalently suppressed.
 \citet{wolf2023fundamental} formalised that safety-alignment acts as a
 shallow post-hoc constraint over preserved pre-trained representations;
@@ -2639,7 +2641,7 @@ sequences are therefore likely \emph{in-distribution} for the base model,
 producing realistic loss-landscape variance similar to a member-data setting.
 We acknowledge that without confirmed ground-truth membership labels for
 Mistral-7B-v0.1, these sequences cannot be certified as true training members,
-and the observed $\tau$ values should be interpreted as M$\to$A correlation
+and the observed $\tau_b$ values should be interpreted as M$\to$A correlation
 on in-distribution text rather than as MIA performance.
 Obtaining confirmed member sequences for Mistral-7B-v0.1 is impractical
 without access to the original training dataset, which is not publicly
@@ -2664,7 +2666,7 @@ best interpreted as: RLHF does not reduce greedy output probability on
 in-distribution text; whether verbatim extraction of \emph{confirmed} training
 sequences is equivalently unaffected remains an open question for models whose
 pre-training data is not publicly released.
-The $\tau$ weakening therefore reflects a shift in metric calibration ---
+The $\tau_b$ weakening therefore reflects a shift in metric calibration ---
 RLHF fine-tuning alters the loss landscape on neutral text relative to
 extraction probability, but does not erase memorised representations or suppress
 greedy generation of in-distribution sequences.
@@ -2692,7 +2694,7 @@ its standard generation interface without gradient access.
 White-box attacks, by contrast, use gradient information to optimise the
 prompt that maximises verbatim reproduction.
 The gap between black-box and white-box extraction rates sets the range within
-which our $\tau = 0.08$ could change under a stronger adversary.}
+which our $\tau_b = 0.08$ could change under a stronger adversary.}
 
 \added{\citet{carlini2021extractingtrainingdatalarge} established that
 even simple sampling-based attacks extract thousands of verbatim training
@@ -2712,24 +2714,24 @@ attack.}
 Under greedy extraction, some high-metric sequences (correctly flagged by Loss
 or Min-K\%) fail extraction due to stochastic decoding artefacts, suffix
 length, or context sensitivity --- producing false negatives in the A column
-that depress $\tau$.
+that depress $\tau_b$.
 A white-box adversary who resolves these false negatives would raise EM scores
 for precisely those sequences that metrics already flag, strengthening the
 M$\to$A correlation.
 Formally, $\tau_{M \to A}^{\text{white-box}} \geq \tau_{M \to A}^{\text{greedy}}$
-is the expected direction, meaning our empirical $\tau = 0.08$ is a
+is the expected direction, meaning our empirical $\tau_b = 0.08$ is a
 \emph{conservative lower bound} on M$\to$A under adversarial conditions.}
 
-\added{The implication for practitioners is asymmetric: a low observed $\tau$
+\added{The implication for practitioners is asymmetric: a low observed $\tau_b$
 under cooperative black-box extraction should \emph{not} be interpreted as
 evidence that metrics are uninformative for adversarial risk.
-Defenders who see $\tau \approx 0.08$ and conclude that loss is a poor
+Defenders who see $\tau_b \approx 0.08$ and conclude that loss is a poor
 proxy for extractability may be underestimating risk to a gradient-equipped
 adversary.
 A more conservative posture is to treat sequences flagged as high-risk by
 metrics as high-risk under adversarial extraction regardless of whether
 greedy probing succeeds.
-Directly measuring $\tau$ under soft-prompt optimisation on the HUBBLE
+Directly measuring $\tau_b$ under soft-prompt optimisation on the HUBBLE
 benchmark remains an open experimental question, bounded below by our
 current estimate.}
 
@@ -2758,16 +2760,16 @@ length as the single strongest predictor of memorisation: among all factors
 tested, longer sequences were extracted at significantly higher rates.
 Our I.13 length-stratified analysis (Section~\ref{app:external-validation})
 directly extends this finding to the M$\to$A correlation.
-We find that Loss $\tau$ vs.\ Greedy EM is highest in the shortest sequence
-quartile (Q1, $\leq 132$ tokens: $\tau = +0.148$) and near-zero in Q2
-($132$--$177$ tokens: $\tau = +0.008$), a non-monotone pattern.
+We find that Loss $\tau_b$ vs.\ Greedy EM is highest in the shortest sequence
+quartile (Q1, $\leq 132$ tokens: $\tau_b = +0.148$) and near-zero in Q2
+($132$--$177$ tokens: $\tau_b = +0.008$), a non-monotone pattern.
 The Q1 spike reflects a suffix-matching budget effect: short sequences fit
 entirely within the greedy generation window, so any sequence the model has
 memorised is fully recoverable; the M$\to$A signal is cleanest when A
 (extraction success) is not penalised by suffix length.
 In longer sequences, even memorised content may fail the EM criterion because
 only a fraction of suffix tokens match exactly, compressing the EM
-distribution and attenuating $\tau$.}
+distribution and attenuating $\tau_b$.}
 
 \added{Model capacity modulates F$\to$M through a different mechanism.
 \citet{biderman2023emergentpredictablememorizationlarge} showed that
@@ -2775,7 +2777,7 @@ memorisation of individual sequences emerges predictably at model-specific
 thresholds: sequences that are not memorised by smaller models become memorised
 at a consistent capacity threshold.
 Our Section~\ref{app:scale-comparison} (I.3) extends this to the M$\to$A
-link: the 8B HUBBLE model exhibits $\tau$ sign inversion at high duplication
+link: the 8B HUBBLE model exhibits $\tau_b$ sign inversion at high duplication
 levels ($d{=}256$), while the 1B model does not.
 This inversion --- where metrics and extraction success \emph{anti-correlate}
 at saturation --- is a capacity-specific phenomenon consistent with larger
@@ -2791,7 +2793,7 @@ Capacity is a Factor with a threshold effect: below the memorisation
 threshold, the F$\to$M$\to$A chain is weak; above it, M becomes a
 saturating signal that loses discriminative value.
 Practitioners auditing long documents or large-capacity models should apply
-length normalisation to metric scores and should interpret near-zero $\tau$
+length normalisation to metric scores and should interpret near-zero $\tau_b$
 at high duplication as a saturation artefact rather than evidence of M$\to$A
 weakness.}
 
@@ -2812,7 +2814,7 @@ examples from a deployed model without full retraining~\citep{bourtoule2021machi
 In FMARD terms, unlearning is a Defense targeting the F$\to$M link: it
 attempts to reduce Metric scores (loss, perplexity) on the target sequence,
 which --- if M$\to$A holds --- should transitively reduce extractability (A).
-However, the weak M$\to$A correlation ($\tau = 0.08$) implies that this
+However, the weak M$\to$A correlation ($\tau_b = 0.08$) implies that this
 transitive inference is unreliable: a metric improvement does not guarantee
 a proportional reduction in extraction success.}
 
@@ -2838,7 +2840,7 @@ form: an operator who trusts metric-verified unlearning to certify compliance
 (e.g., to demonstrate GDPR right-to-erasure for a memorised training record)
 may in fact have left the content extractable by a modestly capable adversary.}
 
-\added{The M$\to$A $\tau = 0.08$ implies a formal bound on what unlearning
+\added{The M$\to$A $\tau_b = 0.08$ implies a formal bound on what unlearning
 can certify via metrics alone.
 If an unlearning intervention shifts Loss into the bottom decile of the
 metric distribution (a strong metric improvement), the expected shift in
@@ -2846,7 +2848,7 @@ extraction success is bounded by the M$\to$A correlation strength --- on
 average, a small reduction.
 More concretely: a practitioner who observes $\Delta\text{Loss} > 0$ after
 unlearning cannot infer $\Delta\text{EM} < 0$ without direct extraction
-probing, because $\tau = 0.08$ leaves 92\% of the Loss--EM variance
+probing, because $\tau_b = 0.08$ leaves 92\% of the Loss--EM variance
 unaccounted for.
 A complete unlearning pipeline should therefore supplement metric-level
 audits (F$\to$M verification) with extraction-level audits (M$\to$A
@@ -2870,11 +2872,11 @@ but one sequence showed $\Delta\text{EM} = +0.016$ despite having the
 \emph{largest} $\Delta\text{Loss}$ in the batch ($+8.4$)---a direct
 counterexample to the claim that metric improvement certifies extraction
 protection.
-The empirical Kendall $\tau(\Delta\text{Loss},\,\Delta\text{EM}) = -0.256$
+The empirical Kendall $\tau_b(\Delta\text{Loss},\,\Delta\text{EM}) = -0.256$
 ($p = 0.009$, $n = 50$): while the negative sign indicates that larger loss
 increases are associated on average with larger EM reductions, the moderate
 magnitude leaves substantial per-sequence variance unexplained.
-This is consistent with the weak M$\to$A upper bound ($\tau = 0.07$,
+This is consistent with the weak M$\to$A upper bound ($\tau_b = 0.07$,
 Appendix~\ref{app:external-validation}): a practitioner who observes
 $\Delta\text{Loss} > 0$ after gradient-ascent unlearning cannot certify
 $\Delta\text{EM} < 0$ for any individual sequence without direct extraction
@@ -2886,9 +2888,9 @@ levels or with lower base EM.
 Second, the unlearning method (gradient ascent on the last two transformer
 layers, 50 steps, $\eta = 10^{-5}$) is a minimal prototype; published methods
 such as gradient ascent on all layers, ROME, or preference-based unlearning
-may show stronger $\tau(\Delta\text{Loss},\,\Delta\text{EM})$ or more reliable
+may show stronger $\tau_b(\Delta\text{Loss},\,\Delta\text{EM})$ or more reliable
 per-sequence certification.
-Third, $p$-values for $\tau = -0.256$ at $n = 50$ should not be corrected
+Third, $p$-values for $\tau_b = -0.256$ at $n = 50$ should not be corrected
 against the many hypotheses tested elsewhere in the paper; the finding
 is that the sign is correct and the magnitude moderate, leaving substantial
 per-sequence variance unexplained.}
@@ -2907,7 +2909,7 @@ per-sequence variance unexplained.}
 FMARD: practitioners use forward-pass metrics (typically perplexity) to
 identify which training-data books a model has memorised, in order to quantify
 legal exposure~\citep{henderson2023foundation}.
-Our Gutenberg results ($\tau \approx 0.035$ between Loss and Greedy EM,
+Our Gutenberg results ($\tau_b \approx 0.035$ between Loss and Greedy EM,
 Section~\ref{sec:empirical}) directly challenge this practice by showing that
 loss is nearly uninformative about actual extraction success on literary prose.
 We re-examine this finding through the book-level results of
@@ -2927,7 +2929,7 @@ Metric$\to$Attack Kendall $\tau$ is compressed toward zero even when the
 underlying relationship is monotone --- the same floor effect we observe in
 HUBBLE at $d{=}0$ and $d{=}1$.}
 
-\added{These observations explain why our Gutenberg $\tau \approx 0.035$ does
+\added{These observations explain why our Gutenberg $\tau_b \approx 0.035$ does
 not contradict Cooper et al.'s qualitative finding of model-level variation.
 Rather, they refine it: the M$\to$A link exists at the \emph{model} or
 \emph{book} level of aggregation but dissolves at the \emph{passage} level,
