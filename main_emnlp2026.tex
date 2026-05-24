@@ -747,7 +747,7 @@ configuration, not of the model---is a dominant determinant of observed Risk.
 \begin{table}[t]
 \centering
 \small
-\begin{tabular}{@{}cp{3.0cm}p{5.8cm}@{}}
+\begin{tabular}{@{}cp{3.0cm}p{5.0cm}@{}}
 \toprule
 \# & \textbf{FMARD Link} & \textbf{Observation} \\
 \midrule
@@ -1230,7 +1230,7 @@ Table~\ref{tab:metric-families} summarizes the metric families.
 The central FMARD insight is that retention, reproducibility, and
 distinguishability are conceptually distinct and need not correlate.
 
-\begin{table}[h]
+\begin{table*}[t]
 \centering
 \small
 \begin{tabular}{@{}p{2.0cm}p{1.8cm}p{2.2cm}p{4.5cm}@{}}
@@ -1248,7 +1248,7 @@ MIA scores        & Distinguishability & BB (logits) & Uncalibrated per-instance
 \end{tabular}
 \caption{Metric families and the property each measures. BB = black-box.}
 \label{tab:metric-families}
-\end{table}
+\end{table*}
 
 
 % =============================================================================
@@ -1319,7 +1319,7 @@ does not require the Metric$\to$Attack link to function.
     queries~\citep{petroni2019language}.
 \end{enumerate}
 
-\begin{table*}[h!]
+\begin{table*}[t]
 \footnotesize
 \centering
 \resizebox{\linewidth}{!}{
@@ -1425,7 +1425,7 @@ The HUBBLE design (controlled insertion at known duplication levels) provides
 a template for how benchmark contamination can be studied under controlled
 conditions.
 
-\begin{table*}[h!]
+\begin{table*}[t]
 \footnotesize
 \centering
 \resizebox{\linewidth}{!}{
@@ -1517,7 +1517,7 @@ memorization-linked activation patterns, reducing memorization by up to 60\%.
     three~\citep{bender2021dangers}.
 \end{enumerate}
 
-\begin{table*}[h!]
+\begin{table*}[t]
 \footnotesize
 \centering
 \resizebox{\linewidth}{!}{
@@ -1696,16 +1696,16 @@ single NVIDIA A100 80GB GPU unless otherwise noted.
 Figure~\ref{fig:within-level-heatmaps} shows Kendall's $\tau$ rank correlation
 between all metric pairs, computed within each duplication level.
 
-\begin{figure}[H]
+\begin{figure*}[t]
   \centering
-  \includegraphics[width=\columnwidth]{figures/within_level_correlations.pdf}
+  \includegraphics[width=\textwidth]{figures/within_level_correlations.pdf}
   \caption{Within-level pairwise Kendall's $\tau$ across all seven metrics at
   each duplication level $d \in \{0,1,4,16,64,256\}$.
   Forward-pass metrics form a tight cluster (up to $\tau = 0.97$ at $d{=}256$),
   while their correlation with extraction metrics inverts to strong
   anti-correlation ($\tau = -0.53$) at $d{=}256$.}
   \label{fig:within-level-heatmaps}
-\end{figure}
+\end{figure*}
 
 \subsection{Across- vs.\ Within-Level Correlation Gap}
 \label{app:across-within}
@@ -1713,7 +1713,7 @@ between all metric pairs, computed within each duplication level.
 Table~\ref{tab:across-within-gap} shows that pooling across duplication levels
 inflates $\tau$; the mean gap (across $-$ within) is $+0.114$.
 
-\begin{table}[h]
+\begin{table*}[t]
 \centering
 \small
 \begin{tabular}{llccccccc}
@@ -1736,7 +1736,7 @@ Greedy EM & Prob.\ Extr.\ (any) & 0.93 & ---$^*$ & ---$^*$ & ---$^*$ & 0.69 & 0.
 The ``Across'' column pools all duplication levels; pooling inflates $\tau$
 by up to 0.80 for cross-family pairs.}
 \label{tab:across-within-gap}
-\end{table}
+\end{table*}
 
 \subsection{Scale Dependence}
 \label{app:scale-comparison}
@@ -1763,7 +1763,7 @@ MMLU      & 0.825 & 0.434 & $-$0.24 & $-$0.24 \\
 \subsection{Tail Agreement Analysis}
 \label{app:tail-agreement}
 
-\begin{table}[h]
+\begin{table*}[t]
 \centering
 \small
 \begin{tabular}{llcccccc}
@@ -1785,7 +1785,7 @@ MinK\%++& Greedy EM   & 0.01 & 0.00 & 0.00 & 0.03 & 0.41 & 0.38 \\
 \caption{Top-10\% overlap (random baseline = 0.10).
 Cross-family overlap never exceeds 0.08, below the random baseline.}
 \label{tab:tail-agreement}
-\end{table}
+\end{table*}
 
 \subsection{Content-Type Stratification}
 \label{app:content-strat}
@@ -1838,7 +1838,7 @@ The forward--extraction disconnect is most extreme for Gutenberg ($\tau = 0.03$)
 \subsection{YAGO PII Infill: Attack Format Sensitivity}
 \label{app:pii-infill}
 
-\begin{table}[h]
+\begin{table*}[t]
 \centering
 \small
 \begin{tabular}{llcccccc}
@@ -1887,7 +1887,7 @@ The forward--extraction disconnect is most extreme for Gutenberg ($\tau = 0.03$)
 level.
 Maximum accuracy swing across formats: 87.6 pp (birthdate at $d{=}64$).}
 \label{tab:yago-infill}
-\end{table}
+\end{table*}
 
 \subsection{Standard vs.\ Perturbed Model: MIA Confound Test}
 \label{app:standard-vs-perturbed}
@@ -1916,10 +1916,10 @@ Values averaged across Loss, Min-K\%, ZLib, and all three datasets.}
 \subsection{Anti-Correlation Analysis ($d{=}256$)}
 \label{app:anticorrelation}
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \small
-\begin{tabular}{lcccc}
+\begin{tabular}{lccc}
 \toprule
 \textbf{Loss Quartile} & \textbf{Greedy EM} & \textbf{ROUGE-L} & $n$ \\
 \midrule
