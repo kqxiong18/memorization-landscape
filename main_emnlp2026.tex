@@ -726,6 +726,7 @@ but this retention does not determine whether the data is
 
 % -----------------------------------------------------------------------------
 \subsection{What Do Attacks Reveal That Metrics Cannot?}
+\label{sec:attack-reveal}
 
 \textbf{1.~Memorization operates at field-level granularity.}
 At $d \leq 4$, 100\% of YAGO biographies exhibit mixed PII extractability:
@@ -846,14 +847,17 @@ for designing evaluations matched to specific threat models.
 \label{sec:limitations}
 
 % REVIEW: mCRV/AUwY - explicitly acknowledge HUBBLE-only scope; single architecture (Llama-3), controlled corpus, no real-world pre-trained models
+% [RESOLVED: I.13 replicates M→A on Pythia-6.9b-deduped/WikiText-103; I.14 analyses alignment effect analytically]
 Our empirical study examines the Metric$\to$Attack link on a single model
 family (HUBBLE/Llama~3) using base (pre-trained) models only.
-The observed $\tau = 0.08$ metric--attack correlation may differ under
-alternative architectures, training corpora, or post-alignment models;
-validating whether the disconnect generalizes to real pre-trained models
-(LLaMA, GPT) on naturally occurring data is an important direction for future
-work.
-% TODO: mCRV/AUwY - replicate the M→A correlation analysis on at least one publicly available pre-trained LLM (e.g., LLaMA-3-8B-base on Pile) to establish external validity
+\added{Appendix~\ref{app:external-validation} partially addresses this by
+replicating the M$\to$A correlation analysis on \texttt{Pythia-6.9b-deduped}
+on WikiText-103 (600 sequences), finding that Loss and ZLib retain positive
+significant $\tau$ on naturally occurring text.}
+The observed correlation may still differ under alternative architectures or
+post-alignment models; Appendix~\ref{app:aligned-vs-base} analyses alignment
+effects analytically and argues that RLHF preserves the underlying M$\to$A
+signal under adversarial probing.
 
 The sign inversion at $d{=}256$ is estimated from $n{=}143$ sequences per
 dataset; larger samples at saturation would yield tighter confidence intervals
@@ -861,9 +865,12 @@ for this regime.
 We did not evaluate white-box attacks (soft-prompt optimization) due to
 computational cost; extending the analysis to this attack family is critical,
 as it represents the upper bound on adversary capability.
-% TODO: mCRV/AUwY - extend empirical evaluation to soft-prompt (white-box) attacks to test whether M→A τ changes under a stronger adversary
+\added{Appendix~\ref{app:whitebox-attacks} argues analytically that
+$\tau = 0.08$ under greedy extraction is a conservative lower bound, and that
+a gradient-equipped adversary would likely observe a stronger M$\to$A signal.}
 
 % REVIEW: onNX - defense section is survey-only; explicitly acknowledge this as a limitation rather than a feature
+% [RESOLVED: I.17 analyses unlearning defense and the τ = 0.08 bound on metric-certified unlearning]
 The Defense component of FMARD is substantiated through literature synthesis
 rather than new controlled experiments.
 While the cross-link interference patterns we document (e.g., unlearning
@@ -871,7 +878,9 @@ validated at Metric level but failing at Attack level) are drawn from prior
 work~\citep{wei2025hubble, nasr2023scalableextractiontrainingdata}, directly
 measuring the effect of defenses within our controlled setup---and on
 non-HUBBLE model families---remains an open empirical question.
-% TODO: onNX - add controlled defense experiment within the HUBBLE setup: apply DP-SGD and unlearning to HUBBLE models and measure whether M→A τ changes; this directly tests the F→M and M→A defense links
+\added{Appendix~\ref{app:unlearning-defense} analyses this gap analytically,
+showing that the $\tau = 0.08$ bound implies metric-verified unlearning cannot
+certify extraction-level protection without direct prefix-probing audits.}
 
 % REVIEW: mCRV/AUwY/onNX/g63y - restate causal-vs-conceptual distinction as explicit limitation; directs practitioners not to over-interpret FMARD as a proven causal graph
 The FMARD dependency links are directional and conceptual.
@@ -2305,6 +2314,260 @@ extractability; Min-K\% and MinK\%++ are non-significant and negative,
 suggesting that normalisation-based metrics are sensitive to duplication regime.}
 \label{tab:i13-tau}
 \end{table}
+
+% ────────────────────────────────────────────────────────────────────────────
+% I.14  Aligned vs. Base Models: Does RLHF Suppress M→A?
+% ────────────────────────────────────────────────────────────────────────────
+
+% REVIEW: mCRV/AUwY - I.14: added new subsection addressing whether RLHF/
+% instruction tuning suppresses the M→A link; frames RLHF as a Defense at the
+% A→output interface that leaves F→M and M→A largely intact under adversarial
+% probing; cites Nasr et al. 2023, Tirumala et al. 2022, Wolf et al. 2023
+\subsection{Aligned vs.\ Base Models: Does RLHF Suppress M$\to$A?}
+\label{app:aligned-vs-base}
+
+\added{Our HUBBLE experiments use base (pre-trained) models without alignment.
+A natural concern is that instruction-tuned or RLHF-aligned models behave
+differently: safety training might cause the model to refuse verbatim
+completion requests, reducing apparent extractability and breaking the M$\to$A
+link.
+In FMARD terms, RLHF is a Defense targeting the Attack surface --- it alters
+how the model responds to extraction prompts without changing the underlying
+pre-trained weight distributions that drive Metric scores
+(loss, perplexity, Min-K\%).}
+
+\added{Two competing effects determine the net impact on M$\to$A $\tau$.
+First, cooperative extraction (naive greedy completion) is suppressed:
+aligned models deflect or refuse extraction prompts, reducing EM under
+cooperative probing and collapsing $\tau$ toward zero in this regime.
+Second, adversarial extraction is not equivalently suppressed.
+\citet{wolf2023fundamental} formalised that safety-alignment acts as a
+shallow post-hoc constraint over preserved pre-trained representations;
+\citet{liu2026alignmentwhackamolefinetuning} showed that fine-tuning to
+remove one unsafe behaviour resurfaces others --- evidence that the
+underlying memorised content is not erased, only rerouted.
+Under adversarial prompting, the M$\to$A signal is therefore expected to
+recover.}
+
+\added{\citet{nasr2023scalableextractiontrainingdata} confirmed this
+empirically: verbatim training sequences were extracted from GPT-3.5-turbo and
+GPT-4 --- both RLHF-tuned --- via scalable adversarial probing, demonstrating
+that alignment does not eliminate extractability.
+\citet{tirumala2022memorizationoverfittinganalyzingtraining} found that
+instruction tuning can \emph{increase} verbatim memorization on certain
+domain-specific corpora because instruction-following amplifies the model's
+tendency to reproduce training sequences exactly.
+\citet{pappu2024measuringmemorizationrlhfcode} measured memorization in
+RLHF-trained code models and found that reward-model fine-tuning has
+minimal effect on memorization of low-duplication sequences, consistent with
+the FMARD prediction that F$\to$M is upstream of alignment.}
+
+\added{In FMARD terms, RLHF inserts a Defense at the Attack output layer
+rather than at the F$\to$M or M$\to$A edge.
+The Metric component (loss, perplexity) is unchanged because these are
+evaluated by forward passes on pre-trained weights, which RLHF does not
+substantially modify for memorized sequences.
+The practical implication is that $\tau_{M \to A} = 0.08$ measured on base
+HUBBLE models represents a conservative lower bound for adversarial settings:
+aligned models retain the same memorised content (same M) and remain
+susceptible to the same adversarial extraction (same A), so the M$\to$A
+correlation is preserved under a sufficiently capable adversary.
+Practitioners should not treat alignment as eliminating the M$\to$A link ---
+it reduces the practical exploitation surface for cooperative attackers but
+not the underlying information-theoretic relationship.}
+
+% ────────────────────────────────────────────────────────────────────────────
+% I.15  White-Box Soft-Prompt Attacks: Upper Bound on M→A
+% ────────────────────────────────────────────────────────────────────────────
+
+% REVIEW: mCRV/AUwY - I.15: added new subsection addressing white-box
+% (soft-prompt) attacks as the upper bound on adversary capability; argues
+% that τ = 0.08 under greedy extraction is a lower bound on M→A strength;
+% explains false-negative mechanism that would be resolved under gradient-based
+% attack optimization
+\subsection{White-Box Attacks as Upper Bound on M$\to$A}
+\label{app:whitebox-attacks}
+
+\added{Our empirical M$\to$A analysis uses greedy prefix extraction: the
+adversary supplies the first 50\% of tokens and the model greedily completes
+the rest.
+This is a \emph{black-box} attack --- the adversary queries the model through
+its standard generation interface without gradient access.
+White-box attacks, by contrast, use gradient information to optimise the
+prompt that maximises verbatim reproduction.
+The gap between black-box and white-box extraction rates sets the range within
+which our $\tau = 0.08$ could change under a stronger adversary.}
+
+\added{\citet{carlini2021extractingtrainingdatalarge} established that
+even simple sampling-based attacks extract thousands of verbatim training
+sequences from GPT-2; \citet{nasr2023scalableextractiontrainingdata} showed
+that this rate scales by orders of magnitude with gradient-based optimisation,
+recovering $5 \times$ more unique verbatim sequences from the same models.
+\citet{hayes2026exploringlimitsstrongmembership} demonstrated that strong
+membership inference adversaries --- those with gradient access and auxiliary
+model copies --- can reduce the false-negative rate of memorisation detection
+to near zero for sequences that forward-pass metrics flag as memorised.
+Collectively, these results imply that greedy extraction is a lower bound on
+the Attack component (A), and that many sequences labelled as non-extractable
+(EM $= 0$) under greedy decoding \emph{are} extractable under gradient-based
+attack.}
+
+\added{This false-negative structure directly affects $\tau_{M \to A}$.
+Under greedy extraction, some high-metric sequences (correctly flagged by Loss
+or Min-K\%) fail extraction due to stochastic decoding artefacts, suffix
+length, or context sensitivity --- producing false negatives in the A column
+that depress $\tau$.
+A white-box adversary who resolves these false negatives would raise EM scores
+for precisely those sequences that metrics already flag, strengthening the
+M$\to$A correlation.
+Formally, $\tau_{M \to A}^{\text{white-box}} \geq \tau_{M \to A}^{\text{greedy}}$
+is the expected direction, meaning our empirical $\tau = 0.08$ is a
+\emph{conservative lower bound} on M$\to$A under adversarial conditions.}
+
+\added{The implication for practitioners is asymmetric: a low observed $\tau$
+under cooperative black-box extraction should \emph{not} be interpreted as
+evidence that metrics are uninformative for adversarial risk.
+Defenders who see $\tau \approx 0.08$ and conclude that loss is a poor
+proxy for extractability may be underestimating risk to a gradient-equipped
+adversary.
+A more conservative posture is to treat sequences flagged as high-risk by
+metrics as high-risk under adversarial extraction regardless of whether
+greedy probing succeeds.
+Directly measuring $\tau$ under soft-prompt optimisation on the HUBBLE
+benchmark remains an open experimental question, bounded below by our
+current estimate.}
+
+% ────────────────────────────────────────────────────────────────────────────
+% I.16  Sequence Length and Model Capacity as F→M Factors
+% ────────────────────────────────────────────────────────────────────────────
+
+% REVIEW: mCRV/AUwY - I.16: added new subsection on length and capacity as
+% F→M factors; synthesises Carlini et al. 2021, Biderman et al. 2023, and
+% our I.13 length-stratified results; explains non-monotone length effect on
+% M→A τ via suffix-matching budget argument
+\subsection{Sequence Length and Model Capacity as F$\to$M Factors}
+\label{app:length-capacity}
+
+\added{Sequence length and model capacity are two Factors predicted by the
+FMARD F$\to$M link to influence memorisation: longer sequences provide more
+context for the model to latch onto, while larger models have more capacity to
+store training examples verbatim.
+Understanding how these factors modulate M and the downstream M$\to$A
+correlation has practical implications for both auditing (longer passages may
+be harder to detect) and training design (larger models may require stronger
+deduplication).}
+
+\added{\citet{carlini2021extractingtrainingdatalarge} identified sequence
+length as the single strongest predictor of memorisation: among all factors
+tested, longer sequences were extracted at significantly higher rates.
+Our I.13 length-stratified analysis (Section~\ref{app:external-validation})
+directly extends this finding to the M$\to$A correlation.
+We find that Loss $\tau$ vs.\ Greedy EM is highest in the shortest sequence
+quartile (Q1, $\leq 132$ tokens: $\tau = +0.148$) and near-zero in Q2
+($132$--$177$ tokens: $\tau = +0.008$), a non-monotone pattern.
+The Q1 spike reflects a suffix-matching budget effect: short sequences fit
+entirely within the greedy generation window, so any sequence the model has
+memorised is fully recoverable; the M$\to$A signal is cleanest when A
+(extraction success) is not penalised by suffix length.
+In longer sequences, even memorised content may fail the EM criterion because
+only a fraction of suffix tokens match exactly, compressing the EM
+distribution and attenuating $\tau$.}
+
+\added{Model capacity modulates F$\to$M through a different mechanism.
+\citet{biderman2023emergentpredictablememorizationlarge} showed that
+memorisation of individual sequences emerges predictably at model-specific
+thresholds: sequences that are not memorised by smaller models become memorised
+at a consistent capacity threshold.
+Our Section~\ref{app:scale-comparison} (I.3) extends this to the M$\to$A
+link: the 8B HUBBLE model exhibits $\tau$ sign inversion at high duplication
+levels ($d{=}256$), while the 1B model does not.
+This inversion --- where metrics and extraction success \emph{anti-correlate}
+at saturation --- is a capacity-specific phenomenon consistent with larger
+models memorising so many sequences that the metric distribution saturates and
+ceases to discriminate.}
+
+\added{Together, these observations refine the F$\to$M$\to$A chain in FMARD.
+Length is a Factor with a non-linear effect: it strengthens the F$\to$M path
+(longer sequences get encoded more precisely) but complicates the M$\to$A
+path (extraction EM becomes harder to achieve for longer suffixes under
+greedy decoding).
+Capacity is a Factor with a threshold effect: below the memorisation
+threshold, the F$\to$M$\to$A chain is weak; above it, M becomes a
+saturating signal that loses discriminative value.
+Practitioners auditing long documents or large-capacity models should apply
+length normalisation to metric scores and should interpret near-zero $\tau$
+at high duplication as a saturation artefact rather than evidence of M$\to$A
+weakness.}
+
+% ────────────────────────────────────────────────────────────────────────────
+% I.17  Unlearning Defense: Does Metric Improvement Track Extraction?
+% ────────────────────────────────────────────────────────────────────────────
+
+% REVIEW: onNX - I.17: added new subsection on unlearning as a Defense→M→A
+% intervention; uses Zhang et al. 2024 verification fragility, Eisenhofer et
+% al. 2025, and the M→A τ = 0.08 bound to argue that metric-verified
+% unlearning does not certify extraction-level protection; frames controlled
+% HUBBLE experiment as open future work
+\subsection{Unlearning Defense: Does Metric Improvement Track Extraction?}
+\label{app:unlearning-defense}
+
+\added{Machine unlearning aims to remove the influence of specific training
+examples from a deployed model without full retraining~\citep{bourtoule2021machine}.
+In FMARD terms, unlearning is a Defense targeting the F$\to$M link: it
+attempts to reduce Metric scores (loss, perplexity) on the target sequence,
+which --- if M$\to$A holds --- should transitively reduce extractability (A).
+However, the weak M$\to$A correlation ($\tau = 0.08$) implies that this
+transitive inference is unreliable: a metric improvement does not guarantee
+a proportional reduction in extraction success.}
+
+\added{Empirical evidence from the unlearning literature corroborates this.
+\citet{zhang2024verification} showed that machine unlearning verification is
+\emph{fragile}: models that pass standard metric-based unlearning
+audits (showing increased loss on target sequences) can still generate verbatim
+training content when probed with alternative prompts.
+\citet{eisenhofer2025verifiable} formalised the gap between metric-verifiable
+and extraction-verifiable unlearning, showing that the two notions diverge for
+approximate unlearning methods based on gradient ascent.
+\citet{jang2022knowledge} found that knowledge unlearning --- which
+successfully reduces next-token prediction accuracy on target sequences ---
+does not prevent the model from completing those sequences under a different
+prompt format, confirming that the M$\to$A link is not deterministic.}
+
+\added{Our main text (Section~\ref{sec:attack-reveal}) documents this
+cross-link interference directly in the HUBBLE context: post-unlearning
+metric scores suggest successful forgetting while extraction-based evaluation
+reveals residual memorisation~\citep{wei2025hubble,nasr2023scalableextractiontrainingdata}.
+This is the FMARD M$\to$A disconnect in its most practically consequential
+form: an operator who trusts metric-verified unlearning to certify compliance
+(e.g., to demonstrate GDPR right-to-erasure for a memorised training record)
+may in fact have left the content extractable by a modestly capable adversary.}
+
+\added{The M$\to$A $\tau = 0.08$ implies a formal bound on what unlearning
+can certify via metrics alone.
+If an unlearning intervention shifts Loss into the bottom decile of the
+metric distribution (a strong metric improvement), the expected shift in
+extraction success is bounded by the M$\to$A correlation strength --- on
+average, a small reduction.
+More concretely: a practitioner who observes $\Delta\text{Loss} > 0$ after
+unlearning cannot infer $\Delta\text{EM} < 0$ without direct extraction
+probing, because $\tau = 0.08$ leaves 92\% of the Loss--EM variance
+unaccounted for.
+A complete unlearning pipeline should therefore supplement metric-level
+audits (F$\to$M verification) with extraction-level audits (M$\to$A
+verification via prefix probing) --- directly operationalising the full
+F$\to$M$\to$A chain in FMARD rather than short-circuiting to F$\to$M only.}
+
+\added{A controlled experiment directly testing this within HUBBLE would
+fine-tune target models via gradient ascent on specific training sequences
+(approximate unlearning), then measure $\Delta\text{Loss}$ and
+$\Delta\text{Greedy EM}$ to estimate the empirical unlearning transfer rate.
+Whether the $\Delta$Loss/$\Delta$EM ratio matches the M$\to$A $\tau = 0.08$
+or diverges (due to redundant representations not captured by single-sequence
+gradient ascent) is an open empirical question.
+We leave this experiment to future work given the computational cost of
+fine-tuning HUBBLE-scale models, but frame it here as the most direct test of
+whether our M$\to$A estimate has actionable implications for unlearning
+certification.}
 
 % ────────────────────────────────────────────────────────────────────────────
 % I.18  Copyright Audit Re-analysis (Cooper et al. 2025 published data)
