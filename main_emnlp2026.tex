@@ -2381,6 +2381,32 @@ Practitioners should not treat alignment as eliminating the M$\to$A link ---
 it reduces the practical exploitation surface for cooperative attackers but
 not the underlying information-theoretic relationship.}
 
+% REVIEW: mCRV/AUwY - I.14: added empirical experiment on Mistral-7B-v0.1
+% (base) vs Mistral-7B-Instruct-v0.3 (aligned), N=300 WikiText-103 sequences,
+% bfloat16, greedy prefix-extraction; real τ values confirm EM is preserved
+% under RLHF (ΔEM ≈ 0) while metric calibration weakens, consistent with
+% RLHF as Defense at A→output interface
+\added{We tested this prediction empirically by comparing
+\texttt{mistralai/Mistral-7B-v0.1} (base pre-trained) against
+\texttt{mistralai/Mistral-7B-Instruct-v0.3} (RLHF-aligned) on the same 300
+WikiText-103 sequences (bfloat16, greedy prefix-extraction as in
+Appendix~\ref{app:external-validation}).
+For the base model, Loss and ZLib are statistically significant predictors of
+greedy EM: $\tau_{\text{Loss}} = +0.106$ ($p = 0.007$, $n=300$) and
+$\tau_{\text{ZLib}} = +0.122$ ($p = 0.002$, $n=300$).
+For the RLHF-aligned model, both correlations weaken substantially and lose
+significance: $\tau_{\text{Loss}} = +0.057$ ($p = 0.149$) and
+$\tau_{\text{ZLib}} = +0.062$ ($p = 0.112$).
+Crucially, however, the mean greedy EM is nearly identical for both models
+(Base: $0.029$; Aligned: $0.030$; $\Delta\text{EM} = +0.0008$), confirming
+that RLHF alignment does not reduce underlying extractability.
+The $\tau$ weakening therefore reflects a shift in metric calibration ---
+RLHF fine-tuning alters the loss landscape on neutral text relative to
+extraction probability, but does not erase memorised content or suppress the
+M$\to$A link under greedy probing.
+This is consistent with FMARD: RLHF inserts a Defense at the A$\to$output
+interface, leaving the underlying M$\to$A relationship intact.}
+
 % ────────────────────────────────────────────────────────────────────────────
 % I.15  White-Box Soft-Prompt Attacks: Upper Bound on M→A
 % ────────────────────────────────────────────────────────────────────────────

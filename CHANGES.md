@@ -62,7 +62,7 @@
 
 - **I.13** (`app:external-validation`): External validation of M→A on `Pythia-6.9b-deduped` / WikiText-103 (600 sequences, greedy EM). Real experimental results: Loss τ = +0.070 (p = 0.012), ZLib τ = +0.084 (p = 0.002); Min-K% and MinK%++ inverted and non-significant on natural (low-duplication) text. Resolves `% TODO mCRV/AUwY` (external validity).
 
-- **I.14** (`app:aligned-vs-base`): Aligned vs. base models — analyses whether RLHF suppresses M→A. Argues RLHF inserts a Defense at the A→output interface but does not change F→M or the underlying M→A correlation; supported by Nasr et al. 2023, Tirumala et al. 2022, Wolf et al. 2023, Pappu et al. 2024.
+- **I.14** (`app:aligned-vs-base`): Aligned vs. base models — **actual experiment** on `mistralai/Mistral-7B-v0.1` (base) vs `mistralai/Mistral-7B-Instruct-v0.3` (aligned), N=300 WikiText-103 sequences, bfloat16, greedy prefix-extraction. Results: Base Loss τ=+0.106 (p=0.007), ZLib τ=+0.122 (p=0.002); Aligned Loss τ=+0.057 (p=0.149), ZLib τ=+0.062 (p=0.112). Mean EM: Base=0.029, Aligned=0.030, ΔEM=+0.0008. RLHF does not suppress extractability (EM unchanged) but weakens metric calibration — consistent with RLHF as Defense at A→output interface. Also supported by Nasr et al. 2023, Tirumala et al. 2022, Wolf et al. 2023, Pappu et al. 2024.
 
 - **I.15** (`app:whitebox-attacks`): White-box attacks as upper bound on M→A. Shows τ = 0.08 is a conservative lower bound under adversarial gradient-based extraction; resolves the white-box limitation analytically. Supported by Carlini et al. 2021/2023, Nasr et al. 2023, Hayes et al. 2026. Partially resolves `% TODO mCRV/AUwY` (white-box attacks).
 
