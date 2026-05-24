@@ -83,7 +83,7 @@ We examine this prediction on the HUBBLE model suite, evaluating seven metrics
 on 21k sequences across three risk domains.
 Cross-family correlation averages $\tau_b = 0.08$ but varies qualitatively by
 content domain ($\tau_b \approx 0.035$ for literary text; $\tau_b \approx 0.33$
-for structured text) and model scale: the Factor-dependent pattern, not the
+for structured text) and model scale; the Factor-dependent pattern, not the
 mean, is the central finding.
 We further show that PII memorization operates at field granularity: virtually
 all biographies exhibit mixed per-field extractability, rendering document-level
@@ -108,13 +108,13 @@ As models scale and are deployed in sensitive domains, practitioners need
 reliable methods to assess memorization risk and to select defenses that
 address it.
 
-The research community has developed a rich set of measurement tools (exact
-match, k-eidetic recall, perplexity ratios,
-Min-K\%~Prob~\citep{shi2023detecting}) and attack methodologies (prefix
-extraction~\citep{carlini2021extractingtrainingdatalarge}, divergence
+The research community has developed a rich set of measurement tools, including
+exact match, $k$-eidetic recall, perplexity ratios, and
+Min-K\%~Prob~\citep{shi2023detecting}, and attack methodologies, including
+prefix extraction~\citep{carlini2021extractingtrainingdatalarge}, divergence
 attacks~\citep{nasr2023scalableextractiontrainingdata}, membership inference
 (MIA)~\citep{shokri2017membership}, and soft-prompt
-optimization~\citep{ozdayi2023controllingextractionmemorizeddata}).
+optimization~\citep{ozdayi2023controllingextractionmemorizeddata}.
 However, these tools are typically developed and evaluated in isolation, and
 the field has not established whether they measure the same underlying
 phenomenon.
@@ -219,12 +219,12 @@ field by the natural flow from root causes to downstream harm rather than
 claiming formally validated causal mechanisms in the interventionist sense.
 Operationally, a \emph{directed dependency link} $X \to Y$ asserts that
 properties of $X$ predictably modulate the magnitude or direction of the $Y$
-signal across empirically relevant operating conditions: for instance, varying
+signal across empirically relevant operating conditions; for instance, varying
 Factor configuration changes how well Metrics predict Attacks ($\tau_{b,\, M \to A}$
 varies from near-zero at 1B scale to $-0.52$ at 8B saturation in our
 experiments), and changing the Attack type changes which Risks materialise.
-This is weaker than a causal claim, as we do not assert that intervening on $X$
-controls $Y$, and \replaced{directional by construction: the upstream component shapes
+This is weaker than a causal claim (we do not assert that intervening on $X$
+controls $Y$), and \replaced{directional by construction: the upstream component shapes
 the operating range of the downstream one, reflecting the natural temporal and
 logical order of the memorization pipeline (training factors precede
 measurement, measurement precedes exploitation)}{stronger than a mere correlation: the link encodes the
@@ -240,11 +240,20 @@ A note on component boundaries: \textit{Metrics} quantify retention properties
 offline from a fixed model; \textit{Attacks} are adversarial procedures that
 consume real resources and model access to produce leakage; and \textit{Risks}
 are the downstream harm consequences of successful attacks.
-The same scoring function (e.g., loss thresholding) can serve as a Metric when used offline or as part of an MIA Attack when deployed to classify
-membership: the component assignment depends on evaluation intent and adversary capability, not on the function itself.} This dependency structure is necessary because, as we show in \S\ref{sec:gap} and \S\ref{sec:empirical}, memorization research produces conflicting conclusions when studies probe different links under different Factor configurations: a pattern that descriptive taxonomies lack the structure to diagnose.
+The same scoring function (e.g., loss thresholding) can serve as a Metric when
+used offline or as part of an MIA Attack when deployed to classify
+membership; the component assignment depends on evaluation intent and adversary
+capability, not on the function itself.}
+This dependency structure is necessary because, as we show in
+\S\ref{sec:gap} and \S\ref{sec:empirical}, memorization research produces
+conflicting conclusions when studies probe different links under different
+Factor configurations, a pattern that descriptive taxonomies lack the
+structure to diagnose.
 
-Appendix~\ref{app:related} expands on prior studies and the specific gaps that motivate FMARD\@.
-Appendices~\ref{app:factors}--\ref{app:defenses} provide in-depth systemization for each component.
+Appendix~\ref{app:related} expands on prior studies and the specific gaps
+that motivate FMARD\@.
+Appendices~\ref{app:factors}--\ref{app:defenses} provide in-depth
+systemization for each component.
 
 
 % -----------------------------------------------------------------------------
@@ -263,10 +272,18 @@ but a structural consequence of optimal learning on heavy-tailed
 distributions.}
 
 \textbf{1.~Data duplication} is the single strongest predictor.
-\citet{kandpal2022deduplicatingtrainingdatamitigates} identified a superlinear relationship between duplication count and verbatim generation. Deduplication yields a tenfold decrease in memorized output~\citep{lee2022deduplicating}, but memorization persists from near-duplicates below similarity thresholds~\citep{SHSP2024}. Notably, deduplication itself introduces a privacy side
-channel~\citep{debenedetti2024privacy}: a case where a Defense on one FMARD link (Factor$\to$Metric) opens a vulnerability on another (Attack$\to$Risk).
+\citet{kandpal2022deduplicatingtrainingdatamitigates} identified a superlinear
+relationship between duplication count and verbatim generation.
+Deduplication yields a tenfold decrease in memorized
+output~\citep{lee2022deduplicating}, but memorization persists from
+near-duplicates below similarity thresholds~\citep{SHSP2024}.
+Notably, deduplication itself introduces a privacy side
+channel~\citep{debenedetti2024privacy}, a case where a Defense on one FMARD
+link (Factor$\to$Metric) opens a vulnerability on another (Attack$\to$Risk).
 \textbf{2.~Model capacity} scales log-linearly with
-memorization~\citep{carlini2021extractingtrainingdatalarge}, with larger models memorizing more content and doing so faster~\citep{tirumala2022memorizationoverfittinganalyzingtraining}.
+memorization~\citep{carlini2021extractingtrainingdatalarge}, with larger
+models memorizing more content and doing so
+faster~\citep{tirumala2022memorizationoverfittinganalyzingtraining}.
 \textbf{3.~Sequence length} increases memorization
 logarithmically~\citep{carlini2023quantifyingmemorizationneurallanguage}.
 In FMARD terms, length simultaneously affects Metrics (longer sequences
@@ -294,11 +311,16 @@ are disproportionately vulnerable~\citep{feldman2020neural}.
 training epochs~\citep{kandpal2022deduplicatingtrainingdatamitigates,
 tirumala2022memorizationoverfittinganalyzingtraining}.
 \textbf{7.~Alignment (RLHF)} suppresses standard extraction by up to
-$50{\times}$ but leaves the underlying retained representations intact; divergence attacks bypass this
-suppression~\citep{nasr2023scalableextractiontrainingdata}, demonstrating that alignment intervenes on the Metric$\to$Attack link without affecting the Factor$\to$Metric link.}
+$50{\times}$ but leaves the underlying retained representations intact;
+divergence attacks bypass this
+suppression~\citep{nasr2023scalableextractiontrainingdata}, demonstrating
+that alignment intervenes on the Metric$\to$Attack link without affecting
+the Factor$\to$Metric link.}
 
-These factors interact nonlinearly (duplication provides a strong initial signal amplified by model
-capacity~\citep{hernandez2022scaling}) and FMARD indicates that varying one can change how Metrics relate to Attacks (examined in \S\ref{sec:empirical}).
+These factors interact nonlinearly (duplication provides a strong initial
+signal amplified by model
+capacity~\citep{hernandez2022scaling}), and FMARD indicates that varying one
+can change how Metrics relate to Attacks (examined in \S\ref{sec:empirical}).
 
 \begin{table}[t]
 \centering
@@ -467,10 +489,16 @@ guarantees, \replaced{but strict privacy budgets degrade utility and the
 web-scale nature of training corpora makes reliably defining the group
 size challenging~\citep{li2021large, abadi2016deep}}{but for DP at pretraining
 scale, strict privacy budgets degrade utility, and the web-scale nature of
-training corpora makes reliably defining the ``group size'' challenging}. DP with PEFT~\citep{ma2024efficient, liu2024differentially} reduces overhead
+training corpora makes reliably defining the ``group size'' challenging}.
+DP with PEFT~\citep{ma2024efficient, liu2024differentially} reduces overhead
 by privatizing only adapter parameters.
-\textbf{3.~Post-training defenses} attempt to erase specific memorized content. Machine unlearning~\citep{cooper2024machine} can be $10^5\times$ more efficient than retraining~\citep{yao2024machine}, but lacks formal guarantees and is vulnerable to relearning attacks~\citep{dong2025practical}.
-Alignment (RLHF) makes memorized content harder to extract but does not make it harder to memorize: fine-tuning aligned models on benign downstream tasks
+\textbf{3.~Post-training defenses} attempt to erase specific memorized
+content.
+Machine unlearning~\citep{cooper2024machine} can be $10^5\times$ more
+efficient than retraining~\citep{yao2024machine}, but lacks formal guarantees
+and is vulnerable to relearning attacks~\citep{dong2025practical}.
+Alignment (RLHF) makes memorized content harder to extract but does not make
+it harder to memorize; fine-tuning aligned models on benign downstream tasks
 can reactivate verbatim recall~\citep{liu2026alignmentwhackamolefinetuning}.
 \textbf{4.~Inference-time defenses} filter outputs during generation.
 MemFree decoding~\citep{ippolito-etal-2023-preventing} blocks verbatim
@@ -528,10 +556,12 @@ recommendations.
 \section{Cross-Literature Analysis Through FMARD}
 \label{sec:gap}
 
-A central value of FMARD is that it explains \textit{why} different studies reach different conclusions about memorization risk.
-Rather than treating these as isolated contradictions, FMARD reveals that recurring failure modes arise from the dependency structure.
-We identify three such failure modes: link mismatch, Factor confounding, and
-cross-link interference, and illustrate each with cases from the literature.
+A central value of FMARD is that it explains \textit{why} different studies
+reach different conclusions about memorization risk.
+Rather than treating these as isolated contradictions, FMARD reveals that
+recurring failure modes arise from the dependency structure.
+We identify three such failure modes (link mismatch, Factor confounding, and
+cross-link interference) and illustrate each with cases from the literature.
 % REVIEW: mCRV/AUwY - add concrete worked example showing FMARD practical value; addresses "why does this framework matter?" critique
 \added{A concrete illustration of FMARD's practical value: without FMARD, a
 practitioner auditing copyright risk would naturally select perplexity as a
@@ -549,13 +579,21 @@ text says nothing about whether that text is extractable.}
 % Three-part response: (a) concede analogues; (b) show chain enables targeted
 % remediation that independent recognition cannot; (c) cross-link interference
 % requires the chain by definition; (d) FMARD generates testable predictions.
-\added{We acknowledge that each failure mode has an analogue in general evaluation methodology: link mismatch as a construct validity violation,
-Factor confounding as an uncontrolled covariate, and cross-link interference as an intervention side-effect.
+\added{We acknowledge that each failure mode has an analogue in general
+evaluation methodology: link mismatch as a construct validity violation,
+Factor confounding as an uncontrolled covariate, and cross-link interference
+as an intervention side-effect.
 Recognising each in isolation does not require FMARD.
-The chain structure adds three things that independent recognition cannot provide. \textit{(i)~Targeted remediation:} the same surface symptom, contradictory
-study conclusions about the same model family, admits two different diagnoses: a construct validity problem at M$\to$A calls for direct extraction testing,
-while a confounding problem at F$\to$M calls for Factor control; the chain determines which intervention is appropriate without which both diagnoses look identical from the outside.
-\textit{(ii)~Diagnosable cross-link interference:} the observation that ``a Defense reducing Loss did not protect against extraction'' is a statement about
+The chain structure adds three things that independent recognition cannot
+provide.
+\textit{(i)~Targeted remediation:} the same surface symptom (contradictory
+study conclusions about the same model family) admits two different diagnoses:
+a construct validity problem at M$\to$A calls for direct extraction testing,
+while a confounding problem at F$\to$M calls for Factor control; the chain
+determines which intervention is appropriate without which both diagnoses look
+identical from the outside.
+\textit{(ii)~Diagnosable cross-link interference:} the observation that ``a
+Defense reducing Loss did not protect against extraction'' is a statement about
 two different dependency links (M and~A) in the same chain; without the chain
 this is simply ``the Defense failed,'' with no basis for predicting
 structurally which other defenses will exhibit the same pattern.
@@ -594,14 +632,14 @@ guessing~\citep{hayes2026exploringlimitsstrongmembership}.
 
 \textbf{Benchmark construction confounds Metrics.}
 \citet{meeus2025sok} show that a bag-of-words classifier achieves AUC 0.99 on
-WikiMIA---not by detecting memorization, but by exploiting temporal
+WikiMIA, not by detecting memorization, but by exploiting temporal
 distribution shift between member and non-member data.
 An uncontrolled Factor (temporal data distribution) confounds the Metric,
 producing inflated scores unrelated to actual memorization.
 
 \textbf{Content domain and model scale modulate the Metric$\to$Attack link.}
 FMARD predicts that content type and model capacity are Factors that modulate
-the Metric$\to$Attack relationship itself---not just the magnitude of
+the Metric$\to$Attack relationship itself, not just the magnitude of
 memorization.
 We test this prediction under controlled conditions in \S\ref{sec:empirical}.
 
@@ -612,13 +650,13 @@ We test this prediction under controlled conditions in \S\ref{sec:empirical}.
 
 \textbf{Defense creates new Attack surface.}
 \citet{debenedetti2024privacy} showed that observing whether a model has
-deduplicated a sequence can reveal its presence in the training set---an MIA
+deduplicated a sequence can reveal its presence in the training set, an MIA
 \textit{enabled} by the Defense itself.
 A Factor intervention inadvertently opens a new Attack$\to$Risk pathway.
 
 \textbf{Defense validated on wrong link.}
 Machine unlearning methods are typically evaluated by showing reduced loss on
-the forget set---a Metric-level change~\citep{yao2024machine}.
+the forget set, a Metric-level change~\citep{yao2024machine}.
 However, HUBBLE's own unlearning evaluation shows no method reaches target
 extraction performance\added{ (defined as zero greedy exact match on the forget set,
 the standard success criterion for unlearning)}~\citep{wei2025hubble}.
@@ -702,7 +740,7 @@ from the binary exact-match outcome)}{$\tau = 0.08$
 sequences in largely independent orders.
 This independence extends to the tails: at $d \geq 16$, where extraction has
 genuine variance, the top-10\% most memorized sequences by Loss overlap with
-the top-10\% most extractable by greedy exact match at $\leq 7.7\%$---below
+the top-10\% most extractable by greedy exact match at $\leq 7.7\%$, below
 the 10\% expected under random ranking (Table~\ref{tab:tail-agreement}).
 Figure~\ref{fig:confounder-heatmap} shows this holds across all 16 metric--attack combinations: the best-performing pair reaches $\bar{\tau} = 0.29$, all others below $0.25$.
 
@@ -734,15 +772,15 @@ therefore do not hold formally, making $\tau_{\mathrm{true}} \approx 0.12$ a
 rough illustrative bound).
 This remains low, but more importantly, a noise-attenuation model of a single
 shared construct predicts a fixed positive true-score correlation scaled only
-by measurement reliability---it does not predict the \emph{domain-dependent}
+by measurement reliability; it does not predict the \emph{domain-dependent}
 variation we observe at moderate duplication.
-At $d \in \{4,16,64\}$---where both families have genuine variance and
-sequence-length effects are not yet dominant---cross-family $\tau_b$ differs
+At $d \in \{4,16,64\}$, where both families have genuine variance and
+sequence-length effects are not yet dominant, cross-family $\tau_b$ differs
 qualitatively by content type: $\tau_b \approx 0.035$ on literary prose
 (Gutenberg) versus $\tau_b \approx 0.33$ on structured text (MMLU; see
 \S\ref{sec:factor-shape} below, where these values are reported).
 A noise model cannot produce this domain gap without positing that the
-underlying construct is itself domain-dependent---which is precisely the FMARD
+underlying construct is itself domain-dependent, which is precisely the FMARD
 claim.
 The below-chance tail overlap at $d \geq 16$, where extraction has genuine
 variance (cross-family top-10\% agreement $\leq 0.08 <$ random baseline
@@ -791,7 +829,7 @@ metrics are equally appropriate across domains.
 Appendix~\ref{app:external-validation} shows that on naturally occurring
 low-duplication text (Pythia/WikiText-103), Min-K\%~Prob and MinK\%++ are
 non-significant and negative, while Loss and ZLib remain positively
-significant---indicating that calibrated count-based metrics can invert in
+significant, indicating that calibrated count-based metrics can invert in
 natural (non-synthetic) settings and should not be used as primary metrics
 for auditing real pre-trained models without validation on the relevant
 content type.}
@@ -814,8 +852,8 @@ This inversion is attributable to sequence length: Loss correlates positively
 with token count ($\tau_b = +0.78$), while greedy exact match correlates
 negatively ($\tau_b = -0.47$), as longer suffixes are harder to reproduce
 verbatim.
-A quartile analysis confirms this---the lowest-loss quartile achieves 97.2\%
-greedy extraction, the highest-loss quartile achieves 50.0\%---demonstrating
+A quartile analysis confirms this: the lowest-loss quartile achieves 97.2\%
+greedy extraction and the highest-loss quartile achieves 50.0\%, demonstrating
 that a single Factor (sequence length) can \textit{invert} the
 Metric$\to$Attack relationship at specific operating points.
 \replaced{This manifests as super-random threshold disagreement at $d{=}256$
@@ -866,7 +904,7 @@ We distinguish these using HUBBLE's standard model as a negative control.
 At $d \geq 16$, the perturbed model achieves AUC $\to 1.0$; the standard
 model remains at AUC $\approx 0.50$ (Table~\ref{tab:mia-auc}).
 The gap exceeds $\Delta\text{AUC} = 0.45$ across all three datasets.
-This establishes that forward-pass metrics detect genuine memorization---the
+This establishes that forward-pass metrics detect genuine memorization: the
 Factor$\to$Metric link is intact.
 The disconnect is localized to the Metric$\to$Attack link: the model
 \textit{retains} training data in a form detectable by statistical metrics,
@@ -898,8 +936,8 @@ Attack prompt format modulates measured PII accuracy by up to 88 percentage
 points.
 At $d{=}256$, birthdate extraction reaches 100\% under full-prefix prompting,
 12.4\% under introductory prefix, and 15.7\% under name-only prompting.
-The adversary's auxiliary information---a property of the Attack
-configuration, not of the model---is a dominant determinant of observed Risk.
+The adversary's auxiliary information, a property of the Attack
+configuration, not of the model, is a dominant determinant of observed Risk.
 \added{While HUBBLE establishes that adversary capability modulates extraction
 rate~\citep{wei2025hubble}, the new finding here is quantitative: per-field
 $|\tau_b| < 0.12$ between document-level Metrics and field-level extraction
@@ -998,11 +1036,11 @@ protocols.}
 
 The memorization literature is extensive but fragmented: studies employ
 different metrics, probe different attack surfaces, and vary different
-factors---producing apparently contradictory conclusions about the same model
+factors, producing apparently contradictory conclusions about the same model
 families.
 FMARD addresses this fragmentation by decomposing memorization into dependency-linked
-components and identifying three recurring failure modes---link mismatch,
-Factor confounding, and cross-link interference---that account for why studies
+components and identifying three recurring failure modes (link mismatch,
+Factor confounding, and cross-link interference) that account for why studies
 disagree.
 
 Our controlled study on HUBBLE confirms a central prediction of the framework:
@@ -1073,8 +1111,8 @@ rather than new controlled experiments.
 While the cross-link interference patterns we document (e.g., unlearning
 validated at Metric level but failing at Attack level) are drawn from prior
 work~\citep{wei2025hubble, nasr2023scalableextractiontrainingdata}, directly
-measuring the effect of defenses within our controlled setup---and on
-non-HUBBLE model families---remains an open empirical question.
+measuring the effect of defenses within our controlled setup, and on
+non-HUBBLE model families, remains an open empirical question.
 % REVIEW: onNX - updated to reflect I.17 now includes actual experiment
 \added{Appendix~\ref{app:unlearning-defense} directly tests this gap on
 Pythia-6.9b-deduped / WikiText-103: gradient-ascent unlearning achieves
