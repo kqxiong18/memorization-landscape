@@ -29,6 +29,7 @@
 \usepackage{longtable}
 \usepackage[most]{tcolorbox}
 \usepackage{tikz}
+\usepackage{float}
 \usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc}
 \usepackage[capitalize,noabbrev]{cleveref}
 
@@ -292,8 +293,8 @@ can change how Metrics relate to Attacks (examined in \S\ref{sec:empirical}).
 
 \begin{table}[t]
 \centering
-\small
-\begin{tabular}{@{}lcp{5.6cm}@{}}
+\footnotesize
+\begin{tabular}{@{}lcp{3.8cm}@{}}
 \toprule
 \textbf{Factor} & \textbf{Effect} & \textbf{Key Finding} \\
 \midrule
@@ -473,8 +474,8 @@ another unless the Defense targets both upstream.
 
 \begin{table}[t]
 \centering
-\small
-\begin{tabular}{@{}lll@{}}
+\footnotesize
+\begin{tabular}{@{}p{2.0cm}p{1.8cm}p{2.8cm}@{}}
 \toprule
 % REVIEW: onNX - Table 3 "FMARD Link" column now uses FMARD arrow notation (F, F→M, M→A, A→R) instead of vague English categories (Factor/Training/Post-training/Attack surface)
 \textbf{\replaced{FMARD Link Targeted}{FMARD Link}} & \textbf{Defense} & \textbf{Limitation} \\
@@ -662,6 +663,17 @@ This independence extends to the tails: the top-10\% most memorized sequences
 by Loss overlap with the top-10\% most extractable by greedy exact match at
 7.7\%---below the 10\% expected under random ranking
 (Table~\ref{tab:tail-agreement}).
+Figure~\ref{fig:confounder-heatmap} shows this holds across all 16 metric--attack combinations: the best-performing pair reaches $\bar{\tau} = 0.29$, all others below $0.25$.
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=0.85\columnwidth]{figures/attack_metric_heatmap_target.pdf}
+  \caption{Mean within-cell Kendall's $\tau$ between forward-pass metrics
+  (columns) and extraction attacks (rows).
+  The best pair (MinK\%++ vs.\ Static Greedy EM) reaches $\bar{\tau} = 0.29$;
+  most pairs are near-zero or negative.}
+  \label{fig:confounder-heatmap}
+\end{figure}
 
 
 % -----------------------------------------------------------------------------
@@ -698,11 +710,32 @@ A quartile analysis confirms this---the lowest-loss quartile achieves 97.2\%
 greedy extraction, the highest-loss quartile achieves 50.0\%---demonstrating
 that a single Factor (sequence length) can \textit{invert} the
 Metric$\to$Attack relationship at specific operating points.
+Figure~\ref{fig:disagree-by-dup} shows this manifests as super-random threshold disagreement at $d{=}256$ ($76.8\%$ for Loss vs.\ Greedy EM, exceeding the $50\%$ random baseline).
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=0.75\columnwidth]{figures/disagreement_by_duplication.pdf}
+  \caption{Threshold disagreement (median-split) between forward-pass metrics
+  and Greedy EM\@.
+  At $d{=}256$, disagreement reaches 76.8\% (Loss vs.\ Greedy EM) and 79.2\%
+  (Min-K\% vs.\ Prob.\ Extr.\ any), exceeding the random baseline.}
+  \label{fig:disagree-by-dup}
+\end{figure}
 
 Taken together, these results confirm that content domain, model scale, and
 duplication level all modulate the Metric$\to$Attack link, explaining why
 cross-study comparisons that do not control for these Factors yield
 contradictory conclusions (Table~\ref{tab:summary}).
+Figure~\ref{fig:corr-by-dup} shows within-cell $\tau$ by duplication level: even the best pair (MinK\%++ vs.\ Greedy EM) rises to $\tau \approx 0.70$ only at $d{=}256$, while Loss vs.\ Sampling EM swings to $-0.55$.
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=0.85\columnwidth]{figures/correlation_by_duplication_target.pdf}
+  \caption{Within-cell Kendall's $\tau$ as a function of duplication level.
+  MinK\%++ vs.\ Static Greedy EM (red) rises to ${\approx}0.70$ at $d{=}256$;
+  Loss vs.\ Sampling EM (blue) swings to $\tau \approx -0.55$.}
+  \label{fig:corr-by-dup}
+\end{figure}
 
 
 % -----------------------------------------------------------------------------
@@ -744,11 +777,22 @@ At $d{=}256$, birthdate extraction reaches 100\% under full-prefix prompting,
 12.4\% under introductory prefix, and 15.7\% under name-only prompting.
 The adversary's auxiliary information---a property of the Attack
 configuration, not of the model---is a dominant determinant of observed Risk.
+Figure~\ref{fig:greedy-vs-sampling} further shows that greedy and probabilistic sampling attacks target different populations: at $d{=}16$, sampling discovers $1.7\times$ more extractable sequences than greedy decoding.
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=0.75\columnwidth]{figures/greedy_vs_sampling.pdf}
+  \caption{Greedy exact match vs.\ probabilistic extraction rate ($n{=}40$,
+  top-$k{=}40$), colored by duplication level.
+  At $d{=}16$, sampling discovers $1.7\times$ more extractable sequences than
+  greedy.}
+  \label{fig:greedy-vs-sampling}
+\end{figure}
 
 \begin{table}[t]
 \centering
-\small
-\begin{tabular}{@{}cp{3.0cm}p{5.0cm}@{}}
+\footnotesize
+\begin{tabular}{@{}cp{2.8cm}p{4.0cm}@{}}
 \toprule
 \# & \textbf{FMARD Link} & \textbf{Observation} \\
 \midrule
@@ -1906,15 +1950,7 @@ The Attack component of FMARD therefore cannot be collapsed to a single
 canonical procedure: greedy and sampling attacks probe different aspects of
 what the model has memorized.}
 
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=0.75\columnwidth]{figures/greedy_vs_sampling.pdf}
-  \caption{Greedy exact match vs.\ probabilistic extraction rate ($n{=}40$,
-  top-$k{=}40$), colored by duplication level.
-  At $d{=}16$, sampling discovers $1.7\times$ more extractable sequences than
-  greedy.}
-  \label{fig:greedy-vs-sampling}
-\end{figure}
+% Figure~\ref{fig:greedy-vs-sampling} moved to main body §3.5.
 
 \subsection{Threshold Disagreement}
 \label{app:threshold}
@@ -1937,15 +1973,7 @@ nonetheless extracted, so a high-loss threshold selects the \textit{wrong} set.
 Any defense or audit protocol using a fixed threshold on forward-pass metrics
 will be systematically miscalibrated at high duplication levels.}
 
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=0.75\columnwidth]{figures/disagreement_by_duplication.pdf}
-  \caption{Threshold disagreement (median-split) between forward-pass metrics
-  and Greedy EM\@.
-  At $d{=}256$, disagreement reaches 76.8\% (Loss vs.\ Greedy EM) and 79.2\%
-  (Min-K\% vs.\ Prob.\ Extr.\ any), exceeding the random baseline.}
-  \label{fig:disagree-by-dup}
-\end{figure}
+% Figure~\ref{fig:disagree-by-dup} moved to main body §3.3.
 
 \subsection{YAGO PII Infill: Attack Format Sensitivity}
 \label{app:pii-infill}
@@ -2213,15 +2241,7 @@ attacks, reflecting sensitivity to compression-based memorization signals that
 correlate more with probabilistic reproduction than with deterministic greedy
 decoding.}
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.85\columnwidth]{figures/attack_metric_heatmap_target.pdf}
-  \caption{Mean within-cell Kendall's $\tau$ between forward-pass metrics
-  (columns) and extraction attacks (rows).
-  The best pair (MinK\%++ vs.\ Static Greedy EM) reaches $\bar{\tau} = 0.29$;
-  most pairs are near-zero or negative.}
-  \label{fig:confounder-heatmap}
-\end{figure}
+% Figure~\ref{fig:confounder-heatmap} moved to main body §3.2.
 
 \paragraph{Pooling inflates apparent agreement.}
 \added{Figure~\ref{fig:corr-by-dup} shows within-cell $\tau$ as a function of
@@ -2239,14 +2259,7 @@ These results confirm that all correlation estimates in the main paper must be
 interpreted conditional on duplication level; cross-level pooling systematically
 overstates metric--attack agreement.}
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.85\columnwidth]{figures/correlation_by_duplication_target.pdf}
-  \caption{Within-cell Kendall's $\tau$ as a function of duplication level.
-  MinK\%++ vs.\ Static Greedy EM (red) rises to ${\approx}0.70$ at $d{=}256$;
-  Loss vs.\ Sampling EM (blue) swings to $\tau \approx -0.55$.}
-  \label{fig:corr-by-dup}
-\end{figure}
+% Figure~\ref{fig:corr-by-dup} moved to main body §3.3.
 
 % ────────────────────────────────────────────────────────────────────────────
 % I.13  External Validation on Pythia-6.9b-deduped
