@@ -334,7 +334,11 @@ Data duplication  & $\uparrow\uparrow$ & Superlinear: 10$\times$ dup $\to$ 1000$
 Model capacity    & $\uparrow$         & Log-linear scaling~\citep{carlini2023quantifyingmemorizationneurallanguage} \\
 Sequence length   & $\uparrow$         & 33\%$\to$65\% as prefix 50$\to$450 tokens~\citep{carlini2023quantifyingmemorizationneurallanguage} \\
 Decoding method   & $\updownarrow$     & Sampling $2\times$ greedy extraction~\citep{yu2023bag} \\
-\added{Tokenization/content} & \added{$\updownarrow$}  & \added{Larger BPE vocabulary $\uparrow$ named-entity memorization~\citep{kharitonov2021bpe}} \\
+% REVIEW: C2/COLM - ADDED ROW (Tokenization/content, Factor 5).
+% \added{} per-cell causes a spurious space row in tabular (known changes-pkg limitation);
+% \rowcolor preserves track-change visibility in the same orange used by \added{}.
+\rowcolor{orange!20}%
+Tokenization/content & $\updownarrow$ & Larger BPE vocabulary $\uparrow$ named-entity memorization~\citep{kharitonov2021bpe} \\
 Training duration & $\uparrow$         & 2$\times$ epochs $\to$ ${\sim}3\times$ generation~\citep{kandpal2022deduplicatingtrainingdatamitigates} \\
 Alignment (RLHF)  & $\downarrow$*      & Suppresses extraction; divergence bypasses~\citep{nasr2023scalableextractiontrainingdata} \\
 \bottomrule
