@@ -19,7 +19,9 @@
 % ── Revision tracking ────────────────────────────────────────────────────────
 % soul is already loaded above, so when changes loads it internally it is a
 % no-op -- the \showhyphens conflict with microtype is therefore avoided.
-\usepackage[commandnameprefix=always]{changes}
+% commandnameprefix=none ensures the body macros \added / \deleted / \replaced
+% are defined (not the prefixed \cbadded variants).
+\usepackage[commandnameprefix=none]{changes}
 
 % ── Math / tables / figures ───────────────────────────────────────────────────
 \usepackage{amsmath}
