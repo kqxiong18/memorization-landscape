@@ -222,10 +222,12 @@ Factor configuration changes how well Metrics predict Attacks ($\tau_{b,\, M \to
 varies from near-zero at 1B scale to $-0.52$ at 8B saturation in our
 experiments), and changing the Attack type changes which Risks materialise.
 This is weaker than a causal claim---we do not assert that intervening on $X$
-controls $Y$---and directional by construction: the upstream component shapes
+controls $Y$---and \replaced{directional by construction: the upstream component shapes
 the operating range of the downstream one, reflecting the natural temporal and
 logical order of the memorization pipeline (training factors precede
-measurement, measurement precedes exploitation).
+measurement, measurement precedes exploitation)}{stronger than a mere correlation: the link encodes the
+logical direction in which the memorization pipeline flows, with upstream
+components shaping the operating range of downstream ones}.
 Unlike \citet{hartmann2023sok}, who catalog definitions and implications
 without quantitatively testing cross-component links, and \citet{meeus2025sok},
 who demonstrate a metric confound without modelling it as a Factor-modulated
@@ -257,7 +259,7 @@ systemization for each component.
 \label{sec:factors}
 
 Factors are variables that determine how much and what a model memorizes.
-The literature identifies seven primary factors (Table~\ref{tab:factors});
+The literature identifies \replaced{seven}{six} primary factors (Table~\ref{tab:factors});
 Appendix~\ref{app:factors} provides the full review.
 
 % REVIEW: g63y - add Feldman 2020 theoretical grounding; paper was cited narrowly before, now added as primary motivation for why memorization arises
@@ -329,7 +331,7 @@ Data duplication  & $\uparrow\uparrow$ & Superlinear: 10$\times$ dup $\to$ 1000$
 Model capacity    & $\uparrow$         & Log-linear scaling~\citep{carlini2023quantifyingmemorizationneurallanguage} \\
 Sequence length   & $\uparrow$         & 33\%$\to$65\% as prefix 50$\to$450 tokens~\citep{carlini2023quantifyingmemorizationneurallanguage} \\
 Decoding method   & $\updownarrow$     & Sampling $2\times$ greedy extraction~\citep{yu2023bag} \\
-Tokenization/content & $\updownarrow$  & Larger BPE vocabulary $\uparrow$ named-entity memorization~\citep{kharitonov2021bpe} \\
+\added{Tokenization/content} & \added{$\updownarrow$}  & \added{Larger BPE vocabulary $\uparrow$ named-entity memorization~\citep{kharitonov2021bpe}} \\
 Training duration & $\uparrow$         & 2$\times$ epochs $\to$ ${\sim}3\times$ generation~\citep{kandpal2022deduplicatingtrainingdatamitigates} \\
 Alignment (RLHF)  & $\downarrow$*      & Suppresses extraction; divergence bypasses~\citep{nasr2023scalableextractiontrainingdata} \\
 \bottomrule
@@ -619,8 +621,8 @@ A Factor intervention inadvertently opens a new Attack$\to$Risk pathway.
 Machine unlearning methods are typically evaluated by showing reduced loss on
 the forget set---a Metric-level change~\citep{yao2024machine}.
 However, HUBBLE's own unlearning evaluation shows no method reaches target
-extraction performance (defined as zero greedy exact match on the forget set,
-the standard success criterion for unlearning)~\citep{wei2025hubble}.
+extraction performance\added{ (defined as zero greedy exact match on the forget set,
+the standard success criterion for unlearning)}~\citep{wei2025hubble}.
 Similarly, alignment reduces standard extraction by $50\times$ but divergence
 attacks bypass this reduction
 entirely~\citep{nasr2023scalableextractiontrainingdata}.
@@ -685,9 +687,10 @@ and need not agree.
 Within each family, metrics are consistent: forward-pass metrics achieve mean
 intra-family $\tau = 0.48$, and extraction metrics correlate at up to
 $\tau = 0.99$.
-However, cross-family correlation averages $\tau_b = 0.08$
+However, cross-family correlation averages \replaced{$\tau_b = 0.08$
 ($p < 10^{-4}$, Kendall $\tau_b$ $z$-test; $\tau_b$ corrects for ties arising
-from the binary exact-match outcome), indicating the two families rank
+from the binary exact-match outcome)}{$\tau = 0.08$
+($p < 10^{-4}$, Kendall $\tau$ $z$-test)}, indicating the two families rank
 sequences in largely independent orders.
 This independence extends to the tails: at $d \geq 16$, where extraction has
 genuine variance, the top-10\% most memorized sequences by Loss overlap with
@@ -775,7 +778,7 @@ which may partly inflate $\tau_b$ independently of the metric--attack
 relationship; nevertheless, the near-zero value on literary text indicates
 that loss-based metrics carry essentially no predictive signal for extraction
 on that domain.
-This also implies that metric choice is domain-sensitive: not all seven
+\added{This also implies that metric choice is domain-sensitive: not all seven
 metrics are equally appropriate across domains.
 Appendix~\ref{app:external-validation} shows that on naturally occurring
 low-duplication text (Pythia/WikiText-103), Min-K\%~Prob and MinK\%++ are
@@ -783,13 +786,13 @@ non-significant and negative, while Loss and ZLib remain positively
 significant---indicating that calibrated count-based metrics can invert in
 natural (non-synthetic) settings and should not be used as primary metrics
 for auditing real pre-trained models without validation on the relevant
-content type.
+content type.}
 
 \textbf{2.~Model scale.}
 At 1B parameters, cross-family $\tau_b \approx 0.00$ across all duplication
-levels; we note this value is consistent with a floor effect (greedy EM rates
+levels\added{; we note this value is consistent with a floor effect (greedy EM rates
 at 1B approach zero on literary text, making rank correlation degenerate) and
-therefore does not independently establish construct distinctness at this scale.
+therefore does not independently establish construct distinctness at this scale}.
 At 8B, moderate positive correlation emerges at intermediate duplication
 ($\tau_b \approx 0.3$--$0.4$) before inverting to negative correlation at
 $d{=}256$ ($\tau_b = -0.52$).
@@ -866,12 +869,12 @@ Forward-pass metrics, which assign a single score per document, predict
 per-field extraction success at $|\tau| < 0.12$.
 The granularity at which Risk materializes is finer than the granularity at
 which Metrics operate.
-We note that at $d{=}0$ (unduped insertions), high email extraction rates
+\added{We note that at $d{=}0$ (unduped insertions), high email extraction rates
 (0.65--0.68 under intro/name prefix) may partly reflect the model generating
 contextually plausible email addresses from biographical context rather than
 reproducing verbatim memorized content; this would constitute an inference
 risk~\citep{staab2024memorizationviolatingprivacyinference} rather than
-verbatim extraction, and reinforces the case for per-field attack evaluation.
+verbatim extraction, and reinforces the case for per-field attack evaluation.}
 
 \textbf{2.~Adversary capability determines observed Risk.}
 Attack prompt format modulates measured PII accuracy by up to 88 percentage
@@ -880,12 +883,12 @@ At $d{=}256$, birthdate extraction reaches 100\% under full-prefix prompting,
 12.4\% under introductory prefix, and 15.7\% under name-only prompting.
 The adversary's auxiliary information---a property of the Attack
 configuration, not of the model---is a dominant determinant of observed Risk.
-While HUBBLE establishes that adversary capability modulates extraction
+\added{While HUBBLE establishes that adversary capability modulates extraction
 rate~\citep{wei2025hubble}, the new finding here is quantitative: per-field
 $|\tau_b| < 0.12$ between document-level Metrics and field-level extraction
 outcomes means no forward-pass metric score predicts which specific PII fields
 will be extractable, making attack-format variation a structural diagnostic
-gap that document-level audits cannot close.
+gap that document-level audits cannot close.}
 Figure~\ref{fig:greedy-vs-sampling} further shows that greedy and probabilistic sampling attacks target different populations: at $d{=}16$, sampling discovers $1.7\times$ more extractable sequences than greedy decoding.
 
 \begin{figure}[!ht]
@@ -983,10 +986,11 @@ disagree.
 
 Our controlled study on HUBBLE confirms a central prediction of the framework:
 statistical metrics and operational attacks capture different aspects of
-memorization, with a weak and Factor-dependent correlation ($\tau_b = 0.08$,
+memorization, with a weak and Factor-dependent correlation (\replaced{$\tau_b = 0.08$,
 varying from $-0.52$ [Loss vs.\ Greedy EM, $d{=}256$, length-confounded]
 to $+0.42$ [MinK\%++ vs.\ Greedy EM, intermediate duplication] across
-configurations).
+configurations}{$\tau = 0.08$,
+varying from $-0.53$ to $+0.42$ across configurations}).
 Combined with the finding that forward-pass metrics detect genuine
 memorization ($\Delta$AUC $> 0.45$) while failing to predict extraction
 outcomes, these results establish that retention and extractability are
@@ -1115,9 +1119,9 @@ During \textbf{supervised fine-tuning (SFT)}, data is typically smaller and
 more concentrated, so the model may memorize a larger fraction of it.
 DP becomes more practical via PEFT methods~\citep{ma2024efficient}, but
 loss-based MIA may lose discriminative power: the pre-trained model already
-assigns low loss to fine-tuning data, shrinking the loss gap between members
+assigns low loss to fine-tuning data, \replaced{shrinking the loss gap between members
 and non-members (the signal MIA relies on) and reducing its discriminative
-power~\citep{duan2024membership}.
+power}{compressing the signal on which MIA relies}~\citep{duan2024membership}.
 
 During \textbf{alignment (RLHF)}, alignment makes memorized content harder to
 extract under standard prompts while leaving the underlying memorization
