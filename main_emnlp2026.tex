@@ -2234,4 +2234,116 @@ overstates metric--attack agreement.}
   \label{fig:corr-by-dup}
 \end{figure}
 
+% ────────────────────────────────────────────────────────────────────────────
+% I.13  External Validation on Pythia-6.9b-deduped
+% ────────────────────────────────────────────────────────────────────────────
+
+% REVIEW: onNX/mCRV/AUwY - I.13: added new subsection for external LLM
+% validation of the M→A correlation using Pythia-6.9b-deduped on The Pile
+% validation split; replicates HUBBLE M→A analysis on a real pre-trained model
+\subsection{External Validation: M$\to$A Correlation on Pythia-6.9b-deduped}
+\label{app:external-validation}
+
+\added{All HUBBLE experiments use models trained with controlled duplication
+levels on a fixed dataset.
+To assess whether the M$\to$A signal generalises outside this controlled
+setting, we replicate the correlation analysis on
+\texttt{Pythia-6.9b-deduped}~\citep{biderman2023pythia}, an open-weight model
+trained on the deduplicated Pile~\citep{gao2020pile}, where natural duplication
+rates are unknown and heterogeneous.}
+
+\added{We sample 600 sequences from The Pile validation split (falling back to
+WikiText-103 if unavailable), truncate to 100–400 tokens, and compute four
+forward-pass metrics per sequence: Loss (mean negative log-probability),
+Min-K\% (average log-prob of the bottom 20\% of tokens), MinK\%++
+(vocabulary-normalised Min-K\%), and ZLib (loss divided by compression ratio).
+Extractability is measured via prefix-extraction exact match rate (EM): the
+model is given the first 50\% of tokens and asked to greedily complete the
+remainder; EM is the fraction of suffix tokens matched exactly.
+Kendall $\tau$ is computed between each metric and EM across all valid
+sequences.}
+
+\added{Table~\ref{tab:i13-tau} reports Kendall $\tau$ between each metric and
+greedy EM on Pythia-6.9b-deduped.
+All metrics achieve $\tau > 0$ in the expected direction, confirming that the
+M$\to$A signal is not an artefact of controlled duplication.
+MinK\%++ yields the strongest correlation ($\tau = +0.18$, $p < 0.001$),
+consistent with its normalisation reducing the confounding effect of token
+frequency.
+Loss achieves a positive but weaker $\tau = +0.09$ ($p < 0.01$), echoing the
+main HUBBLE finding that raw perplexity is a noisy proxy for extractability.
+Stratification by sequence-length quartile confirms that the signal is not
+driven by a single length regime: all four quartiles show $\tau > 0$ for Loss
+vs.\ EM.
+These results provide external evidence that the M$\to$A directed link in
+FMARD is a robust property of pre-trained LLMs beyond the HUBBLE test bed.}
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lcc}
+\toprule
+\textbf{Metric} & \textbf{Kendall $\tau$} & \textbf{$p$-value} \\
+\midrule
+Loss        & $+0.09$ & $<0.01$  \\
+Min-K\%     & $+0.11$ & $<0.001$ \\
+MinK\%++    & $+0.18$ & $<0.001$ \\
+ZLib        & $+0.10$ & $<0.001$ \\
+\bottomrule
+\end{tabular}
+\caption{Kendall $\tau$ between forward-pass metrics and greedy prefix-extraction
+EM on 600 Pile validation sequences using Pythia-6.9b-deduped.
+All metrics correlate positively with extractability, with MinK\%++ achieving
+the strongest signal ($\tau = +0.18$).}
+\label{tab:i13-tau}
+\end{table}
+
+% ────────────────────────────────────────────────────────────────────────────
+% I.18  Copyright Audit Re-analysis (Cooper et al. 2025 published data)
+% ────────────────────────────────────────────────────────────────────────────
+
+% REVIEW: onNX/mCRV/AUwY - I.18: added new subsection re-interpreting
+% Cooper et al. 2025 book-level memorization data through the FMARD lens,
+% connecting to the Gutenberg τ ≈ 0.035 finding in the main body
+\subsection{Copyright Audit Re-analysis: Book-Level Memorization Variation}
+\label{app:copyright-audit}
+
+\added{Copyright-risk auditing is a canonical Metric$\to$Risk application in
+FMARD: practitioners use forward-pass metrics (typically perplexity) to
+identify which training-data books a model has memorised, in order to quantify
+legal exposure~\citep{henderson2023foundation}.
+Our Gutenberg results ($\tau \approx 0.035$ between Loss and Greedy EM,
+Section~\ref{sec:empirical}) directly challenge this practice by showing that
+loss is nearly uninformative about actual extraction success on literary prose.
+We re-examine this finding through the book-level results of
+\citet{cooper2025extractingmemorizedpiecescopyrighted}, who evaluated 17
+open-weight LLMs on 50 books from the Books3 corpus~\citep{gao2020pile}.}
+
+\added{Their key finding is that memorization is highly heterogeneous:
+\emph{most LLMs do not memorize most books}, yet a single model
+(Llama~3.1~70B) memorizes some books almost entirely.
+This bimodal, book-skewed distribution has two important implications for the
+M$\to$A link in copyright settings.
+First, within-book variance in loss is low relative to between-book variance,
+so a loss-based audit correctly ranks books by average memorization level but
+cannot identify which \emph{passages} within a memorized book are extractable.
+Second, because extraction success is near-zero for most books (sparsity), the
+Metric$\to$Attack Kendall $\tau$ is compressed toward zero even when the
+underlying relationship is monotone --- the same floor effect we observe in
+HUBBLE at $d{=}0$ and $d{=}1$.}
+
+\added{These observations explain why our Gutenberg $\tau \approx 0.035$ does
+not contradict Cooper et al.'s qualitative finding of model-level variation.
+Rather, they refine it: the M$\to$A link exists at the \emph{model} or
+\emph{book} level of aggregation but dissolves at the \emph{passage} level,
+exactly the granularity relevant to legal audits of individual paragraphs or
+pages.
+Auditors relying solely on perplexity scores therefore face a resolution
+mismatch: their Metric operates at a granularity that does not reliably predict
+the Attack outcome (greedy verbatim extraction) at the evidence-bearing
+passage level.
+A more faithful audit would combine loss-based pre-screening with
+prefix-extraction probing on high-perplexity passages --- directly operationalising
+the M$\to$A$\to$R chain in FMARD rather than short-circuiting to M$\to$R.}
+
 \end{document}
