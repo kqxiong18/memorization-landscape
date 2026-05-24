@@ -16,13 +16,13 @@
 \usepackage{microtype}
 \usepackage{inconsolata}
 
-% ── Revision tracking ─────────────────────────────────────────────────────────
-% commandnameprefix=always → base commands are \chadded{}, \chdeleted{}, \chreplaced{}{}
-% Shorthand aliases so the document reads as \added{}, \deleted{}, \replaced{}{}
-\usepackage[commandnameprefix=always]{changes}
-\newcommand{\added}[1]{\chadded{#1}}
-\newcommand{\deleted}[1]{\chdeleted{#1}}
-\newcommand{\replaced}[2]{\chreplaced{#1}{#2}}
+% ── Revision tracking: NO-OPS for clean submission ───────────────────────────
+% \added{X}→X, \deleted{X}→(nothing), \replaced{X}{Y}→X
+% The changes package is disabled; macros are no-ops so all tracked markup
+% in the document body renders as final accepted text.
+\newcommand{\added}[1]{#1}
+\newcommand{\deleted}[1]{}
+\newcommand{\replaced}[2]{#1}
 
 % ── Math / tables / figures ───────────────────────────────────────────────────
 \usepackage{amsmath}
@@ -82,9 +82,13 @@ retention and operational attacks that test extractability target different
 properties of memorization and need not agree.
 We examine this prediction on the HUBBLE model suite, evaluating seven metrics
 on 21k sequences across three risk domains.
-Retention metrics and extraction attacks show weak cross-family correlation
-($\tau = 0.08$), with the relationship varying by model scale, content domain,
-and adversary capability.
+Cross-family correlation averages $\tau = 0.08$ but varies qualitatively by
+content domain ($\tau \approx 0.035$ for literary text; $\tau \approx 0.33$
+for structured text) and model scale---the Factor-dependent pattern, not the
+mean, is the central finding.
+We further show that PII memorization operates at field granularity: virtually
+all biographies exhibit mixed per-field extractability, rendering document-level
+metrics insufficient for PII audits.
 FMARD makes these disconnects diagnosable, providing a principled basis for
 matching evaluations to specific threat models.
 \end{abstract}
@@ -682,12 +686,12 @@ Within each family, metrics are consistent: forward-pass metrics achieve mean
 intra-family $\tau = 0.48$, and extraction metrics correlate at up to
 $\tau = 0.99$.
 However, cross-family correlation averages $\tau = 0.08$
-($p < 10^{-4}$, Mann-Whitney $U$), indicating the two families rank sequences
-in largely independent orders.
-This independence extends to the tails: the top-10\% most memorized sequences
-by Loss overlap with the top-10\% most extractable by greedy exact match at
-7.7\%---below the 10\% expected under random ranking
-(Table~\ref{tab:tail-agreement}).
+($p < 10^{-4}$, Kendall $\tau$ $z$-test), indicating the two families rank
+sequences in largely independent orders.
+This independence extends to the tails: at $d \geq 16$, where extraction has
+genuine variance, the top-10\% most memorized sequences by Loss overlap with
+the top-10\% most extractable by greedy exact match at $\leq 7.7\%$---below
+the 10\% expected under random ranking (Table~\ref{tab:tail-agreement}).
 Figure~\ref{fig:confounder-heatmap} shows this holds across all 16 metric--attack combinations: the best-performing pair reaches $\bar{\tau} = 0.29$, all others below $0.25$.
 
 % REVIEW: NeurIPS-C2/D2 - address noise-attenuation alternative interpretation of τ = 0.08
@@ -709,9 +713,13 @@ $\tau$, which does not share the same algebraic decomposition as Pearson $r$;
 we use the resulting estimate as an illustrative upper bound, not a formally
 derived value).
 With intra-family $\tau = 0.48$ for forward-pass metrics and $\tau = 0.99$ for
-extraction metrics, the geometric-mean reliability is
+extraction metrics, the geometric-mean gives
 $\sqrt{0.48 \times 0.99} \approx 0.69$, yielding an attenuation-corrected
-estimate $\tau_{\mathrm{true}} \approx 0.08 / 0.69 \approx 0.12$.
+estimate $\tau_{\mathrm{true}} \approx 0.08 / 0.69 \approx 0.12$
+(we note that the 0.48 is convergent validity between two different instruments
+rather than test-retest reliability of a single one; the formula's assumptions
+therefore do not hold formally, making $\tau_{\mathrm{true}} \approx 0.12$ a
+rough illustrative bound).
 This remains low, but more importantly, a noise-attenuation model of a single
 shared construct predicts a fixed positive true-score correlation scaled only
 by measurement reliability---it does not predict the \emph{domain-dependent}
@@ -724,10 +732,6 @@ qualitatively by content type: $\tau \approx 0.035$ on literary prose
 A noise model cannot produce this domain gap without positing that the
 underlying construct is itself domain-dependent---which is precisely the FMARD
 claim.
-The same logic applies to scale: at 1B parameters, cross-family
-$\tau \approx 0.00$ across all duplication levels, while at 8B intermediate
-duplication $\tau \approx 0.3$--$0.4$; a single shared construct with fixed
-reliability would yield the same true-score correlation at both scales.
 The below-chance tail overlap at $d \geq 16$, where extraction has genuine
 variance (cross-family top-10\% agreement $\leq 0.08 <$ random baseline
 $0.10$; Table~\ref{tab:tail-agreement}), provides additional evidence from the
@@ -763,8 +767,12 @@ We test this along three dimensions.
 Cross-family $\tau$ varies substantially by data type: $\tau \approx 0.035$
 for Gutenberg (free-form literary text) versus $\tau \approx 0.33$ for MMLU
 (structured questions).
-The near-zero value on literary text indicates that loss-based metrics carry
-essentially no predictive signal for extraction on this domain.
+We note that MMLU's structured answer tokens (typically a letter or short
+phrase) have higher base extraction rates than Gutenberg literary prose,
+which may partly inflate $\tau$ independently of the metric--attack
+relationship; nevertheless, the near-zero value on literary text indicates
+that loss-based metrics carry essentially no predictive signal for extraction
+on that domain.
 
 \textbf{2.~Model scale.}
 At 1B parameters, cross-family $\tau \approx 0.00$ across all duplication
@@ -904,28 +912,35 @@ relevant Factors, and match evaluations to a threat model.
 
 FMARD's central practical implication is that memorization evaluation must be
 matched to the threat model under assessment.
+These are principled implications of the FMARD decomposition, not
+empirically validated protocols; they represent directions supported by the
+evidence in this paper.
 
-\textbf{1.~Copyright infringement.}
-On literary text, loss-based metrics exhibit $\tau \approx 0.035$ with
-extraction outcomes, providing negligible predictive signal.
-\citet{cooper2025extractingmemorizedpiecescopyrighted} show that copyright
-risk varies dramatically by model and by book, with some models reproducing
-entire novels near-verbatim while most models memorize most books negligibly.
-\textit{Recommendation:} evaluate with extraction attacks directly, applied to
-the content type of concern.
-
-\textbf{2.~PII leakage.}
-PII memorization is field-level (per-field $|\tau| < 0.12$ with
-document-level metrics) and attack format modulates measured risk by up to
-88~pp.
-\textit{Recommendation:} evaluate per-field rather than per-document, and test
-under multiple attack formats to bound risk across adversary capability levels.
-
-\textbf{3.~Regulatory compliance.}
-The cross-family $\tau = 0.08$ implies that loss-based validation of
-unlearning provides minimal assurance of non-extractability.
-\textit{Recommendation:} validate unlearning against extraction attacks, not
-metric-level changes alone.
+\begin{table}[t]
+\centering
+\footnotesize
+\begin{tabular}{@{}p{1.6cm}p{2.6cm}p{2.9cm}@{}}
+\toprule
+\textbf{Threat Model} & \textbf{Key Evidence} & \textbf{Recommended Protocol} \\
+\midrule
+Copyright infringement
+  & Loss $\tau \approx 0.035$ with extraction on literary text~(\S\ref{sec:empirical}); book-level variation~\citep{cooper2025extractingmemorizedpiecescopyrighted}
+  & Extraction attacks on the content type of concern; loss-based pre-screening is insufficient \\
+\addlinespace
+PII leakage
+  & Per-field $|\tau| < 0.12$ with document-level metrics; attack format swings risk by 88~pp~(\S\ref{sec:attack-reveal})
+  & Per-field evaluation under multiple attack formats; do not aggregate to per-document scores \\
+\addlinespace
+Regulatory compliance (unlearning)
+  & Cross-family $\tau = 0.08$; metric-verified unlearning does not certify extraction protection~(\S\ref{app:unlearning-defense})
+  & Supplement metric-level audits with extraction probing; $\Delta$Loss alone does not imply $\Delta$EM \\
+\bottomrule
+\end{tabular}
+\caption{Threat-model-driven evaluation guidelines derived from FMARD.
+These are principled implications of the empirical results, not validated
+protocols.}
+\label{tab:guidelines}
+\end{table}
 
 
 % =============================================================================
@@ -2057,6 +2072,12 @@ The likely mechanism is that structured content (biography fields, answer
 tokens) is extracted via precise string matching, which correlates with low
 loss, whereas literary prose memorization is driven by longer-range syntactic
 patterns that loss alone does not capture.
+We note that MMLU and YAGO also have higher base extraction rates than
+Gutenberg at matched duplication levels, which increases the variance of the
+EM variable and may partly inflate $\tau$ independently of the
+metric--attack relationship; the near-zero value for Gutenberg is robust to
+this concern since the inflation would if anything bias toward a larger
+positive $\tau$.
 Metric choice must therefore be matched not only to the attack type but also
 to the content domain of concern.}
 
@@ -2480,7 +2501,10 @@ modest overall $\tau$ reflects heterogeneity across length regimes.
 Taken together, these results support the FMARD claim that M$\to$A is a
 genuine but data-regime-sensitive association: loss-based metrics provide
 a consistent positive signal, while normalisation-based metrics are fragile
-when natural duplication rates are low.}
+when natural duplication rates are low.
+Note that four metrics are tested simultaneously; $p$-values are not corrected
+for multiple comparisons, so the borderline Min-K\%++ result ($p = 0.059$)
+should be interpreted with particular caution.}
 
 \begin{table}[t]
 \centering
@@ -2820,7 +2844,20 @@ This is consistent with the weak M$\to$A upper bound ($\tau = 0.07$,
 Appendix~\ref{app:external-validation}): a practitioner who observes
 $\Delta\text{Loss} > 0$ after gradient-ascent unlearning cannot certify
 $\Delta\text{EM} < 0$ for any individual sequence without direct extraction
-probing.}
+probing.
+Three limitations bound this experiment's generalisability.
+First, the $N = 50$ sequences are the \emph{most} extractable from the 600-sequence
+scan---a biased sample that may not represent sequences at lower duplication
+levels or with lower base EM.
+Second, the unlearning method (gradient ascent on the last two transformer
+layers, 50 steps, $\eta = 10^{-5}$) is a minimal prototype; published methods
+such as gradient ascent on all layers, ROME, or preference-based unlearning
+may show stronger $\tau(\Delta\text{Loss},\,\Delta\text{EM})$ or more reliable
+per-sequence certification.
+Third, $p$-values for $\tau = -0.256$ at $n = 50$ should not be corrected
+against the many hypotheses tested elsewhere in the paper; the finding
+is that the sign is correct and the magnitude moderate, leaving substantial
+per-sequence variance unexplained.}
 
 % ────────────────────────────────────────────────────────────────────────────
 % I.18  Copyright Audit Re-analysis (Cooper et al. 2025 published data)
