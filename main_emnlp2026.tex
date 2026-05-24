@@ -2265,18 +2265,25 @@ sequences.}
 
 \added{Table~\ref{tab:i13-tau} reports Kendall $\tau$ between each metric and
 greedy EM on Pythia-6.9b-deduped.
-All metrics achieve $\tau > 0$ in the expected direction, confirming that the
-M$\to$A signal is not an artefact of controlled duplication.
-MinK\%++ yields the strongest correlation ($\tau = +0.18$, $p < 0.001$),
-consistent with its normalisation reducing the confounding effect of token
-frequency.
-Loss achieves a positive but weaker $\tau = +0.09$ ($p < 0.01$), echoing the
-main HUBBLE finding that raw perplexity is a noisy proxy for extractability.
-Stratification by sequence-length quartile confirms that the signal is not
-driven by a single length regime: all four quartiles show $\tau > 0$ for Loss
-vs.\ EM.
-These results provide external evidence that the M$\to$A directed link in
-FMARD is a robust property of pre-trained LLMs beyond the HUBBLE test bed.}
+Loss ($\tau = +0.070$, $p = 0.012$) and ZLib ($\tau = +0.084$, $p = 0.002$)
+correlate positively and significantly with extractability, confirming that
+the M$\to$A signal generalises to a real pre-trained model with heterogeneous,
+non-controlled duplication.
+Notably, Min-K\% ($\tau = -0.039$, $p = 0.156$) and MinK\%++ ($\tau = -0.052$,
+$p = 0.059$) are both non-significant and \emph{negative}---opposite to the
+expected direction.
+This inversion suggests that normalisation-based metrics may be calibrated
+for membership inference on high-duplication training data; on WikiText-103,
+where most sequences appear at most once, the relative vocabulary-likelihood
+signal they exploit does not track prefix-extraction success.
+Stratification by sequence-length quartile shows that the Loss signal is
+strongest for short sequences (Q1: $\tau = +0.148$, $n{=}150$) and near zero
+for the second quartile (Q2: $\tau = +0.008$, $n{=}149$), indicating that the
+modest overall $\tau$ reflects heterogeneity across length regimes.
+Taken together, these results support the FMARD claim that M$\to$A is a
+genuine but data-regime-sensitive association: loss-based metrics provide
+a consistent positive signal, while normalisation-based metrics are fragile
+when natural duplication rates are low.}
 
 \begin{table}[t]
 \centering
@@ -2285,16 +2292,17 @@ FMARD is a robust property of pre-trained LLMs beyond the HUBBLE test bed.}
 \toprule
 \textbf{Metric} & \textbf{Kendall $\tau$} & \textbf{$p$-value} \\
 \midrule
-Loss        & $+0.09$ & $<0.01$  \\
-Min-K\%     & $+0.11$ & $<0.001$ \\
-MinK\%++    & $+0.18$ & $<0.001$ \\
-ZLib        & $+0.10$ & $<0.001$ \\
+Loss        & $+0.070$ & $0.012$  \\
+Min-K\%     & $-0.039$ & $0.156$  \\
+MinK\%++    & $-0.052$ & $0.059$  \\
+ZLib        & $+0.084$ & $0.002$  \\
 \bottomrule
 \end{tabular}
 \caption{Kendall $\tau$ between forward-pass metrics and greedy prefix-extraction
-EM on 600 Pile validation sequences using Pythia-6.9b-deduped.
-All metrics correlate positively with extractability, with MinK\%++ achieving
-the strongest signal ($\tau = +0.18$).}
+EM on 600 WikiText-103 sequences using Pythia-6.9b-deduped.
+Loss and ZLib correlate positively and significantly ($p < 0.05$) with
+extractability; Min-K\% and MinK\%++ are non-significant and negative,
+suggesting that normalisation-based metrics are sensitive to duplication regime.}
 \label{tab:i13-tau}
 \end{table}
 
