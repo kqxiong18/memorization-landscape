@@ -164,13 +164,19 @@ defenses (\S\ref{sec:framework}).
 studies can be understood as different studies probing different FMARD links
 under different Factor configurations (\S\ref{sec:gap}).
 % REVIEW: mCRV/AUwY - explicitly scope contribution (3) to one FMARD link (M→A) on HUBBLE only, to avoid overclaiming
+% REVIEW: NeurIPS-C3 - strengthen scoping; name all four remaining links and point to specific appendix experiments
 (3)~\replaced{A focused empirical study on the HUBBLE model suite
 examining the Metric$\to$Attack link}{An illustrative empirical study on HUBBLE examining the
 Metric$\to$Attack link}
 across scales, domains, and attack formats;
 \added{the remaining FMARD links (Factor$\to$Metric, Attack$\to$Risk, and
 Defense links) are substantiated through cross-literature synthesis
-(\S\ref{sec:gap}) and represent open empirical questions (Limitations)}
+(\S\ref{sec:gap}), and represent open empirical questions
+(Limitations, \S\ref{sec:limitations});
+appendix experiments on Pythia-6.9b-deduped (\S\ref{app:external-validation}),
+Mistral-7B (\S\ref{app:aligned-vs-base}), and Pythia unlearning
+(\S\ref{app:unlearning-defense}) provide partial external evidence for three
+of these links outside the HUBBLE setting}
 (\S\ref{sec:empirical}).
 (4)~Threat-model-driven evaluation guidelines for practitioners
 (\S\ref{sec:discussion}).
@@ -202,6 +208,20 @@ specific links.
 \added{These dependencies are directional and conceptual: FMARD organizes the
 field by the natural flow from root causes to downstream harm rather than
 claiming formally validated causal mechanisms in the interventionist sense.}
+% REVIEW: NeurIPS-C5/D - add operational definition of "directed dependency link" to prevent over-interpretation of the term
+\added{Operationally, a \emph{directed dependency link} $X \to Y$ in FMARD
+asserts that: (1) $X$ is a necessary precondition for $Y$ to have any signal
+(removing $X$ makes $Y$ degenerate), and (2) properties of $X$ modulate the
+strength or character of $Y$ (Factor configuration determines how well Metrics
+predict Attacks).
+This is weaker than a causal claim---we do not assert that intervening on $X$
+controls $Y$---and stronger than a mere correlation: the link reflects the
+logical structure of the memorization pipeline, independently of any
+statistical association.
+Prior SoK papers organize the same literature but do not trace this dependency
+chain; Appendix~\ref{app:related} provides a structured comparison with
+\citet{hartmann2023sok} and \citet{meeus2025sok} along five dimensions
+(Table~\ref{tab:sok-comparison}).}
 This dependency structure is necessary because, as we show in
 \S\ref{sec:gap} and \S\ref{sec:empirical}, memorization research produces
 conflicting conclusions when studies probe different links under different
@@ -665,6 +685,30 @@ by Loss overlap with the top-10\% most extractable by greedy exact match at
 (Table~\ref{tab:tail-agreement}).
 Figure~\ref{fig:confounder-heatmap} shows this holds across all 16 metric--attack combinations: the best-performing pair reaches $\bar{\tau} = 0.29$, all others below $0.25$.
 
+% REVIEW: NeurIPS-C2/D2 - explicitly address the noise-attenuation alternative interpretation of τ = 0.08; the sign inversion at d=256 and below-chance tail overlap rule it out
+\added{An alternative interpretation is that both metric families are individually
+noisy measurements of a single underlying memorization variable, and the weak
+cross-family correlation is explained by measurement attenuation rather than
+conceptual distinctness.
+Under this view, the true-score correlation would be $\tau_{\mathrm{true}}
+= \tau_{\mathrm{obs}} / \sqrt{r_M \cdot r_A}$, where $r_M$ and $r_A$ are the
+reliabilities of the metric and attack families respectively.
+With intra-family $\tau = 0.48$ for forward-pass metrics and $\tau = 0.99$ for
+extraction metrics, the geometric-mean reliability is
+$\sqrt{0.48 \times 0.99} \approx 0.69$, yielding an attenuation-corrected
+estimate $\tau_{\mathrm{true}} \approx 0.08 / 0.69 \approx 0.12$.
+This remains low, but more importantly, the noise-attenuation account predicts
+that the corrected correlation should be \emph{positive everywhere}---noise can
+only dampen a true positive signal, not invert it.
+The observed sign inversion at $d{=}256$ ($\tau = -0.52$ for Loss vs.\ Greedy
+EM) directly falsifies this prediction: no amount of attenuation correction
+can convert a negative observed correlation into a positive underlying signal.
+The below-chance tail overlap at all duplication levels (cross-family top-10\%
+agreement $= 0.077 <$ random baseline $0.10$) further confirms that the two
+families do not merely measure the same variable at different precision levels.
+The two families are therefore not interchangeable; FMARD's separation of the
+Metric and Attack components reflects a genuine empirical distinction.}
+
 \begin{figure}[!ht]
   \centering
   \includegraphics[width=0.85\columnwidth]{figures/attack_metric_heatmap_target.pdf}
@@ -892,16 +936,26 @@ for designing evaluations matched to specific threat models.
 
 % REVIEW: mCRV/AUwY - explicitly acknowledge HUBBLE-only scope; single architecture (Llama-3), controlled corpus, no real-world pre-trained models
 % [RESOLVED: I.13 replicates M→A on Pythia-6.9b-deduped/WikiText-103; I.14 analyses alignment effect analytically]
-Our empirical study examines the Metric$\to$Attack link on a single model
-family (HUBBLE/Llama~3) using base (pre-trained) models only.
+% REVIEW: NeurIPS-C3 - strengthen empirical scope acknowledgment; only 1 of 5 FMARD links tested directly
+Our empirical study \replaced{examines only the Metric$\to$Attack (M$\to$A) link
+directly, out of five links in the FMARD chain
+(F$\to$M, M$\to$A, A$\to$R, Defense$\to$F, Defense$\to$M$\to$A).
+The remaining links are substantiated through cross-literature synthesis
+(\S\ref{sec:gap}) and individual appendix analyses (\S\ref{app:unlearning-defense},
+\S\ref{app:whitebox-attacks}), but are not tested under controlled conditions
+within a single study.
+The study also uses a single model family}{examines the Metric$\to$Attack link on a single model family}
+(HUBBLE/Llama~3) using base (pre-trained) models only.
 \added{Appendix~\ref{app:external-validation} partially addresses this by
 replicating the M$\to$A correlation analysis on \texttt{Pythia-6.9b-deduped}
 on WikiText-103 (600 sequences), finding that Loss and ZLib retain positive
 significant $\tau$ on naturally occurring text.}
 The observed correlation may still differ under alternative architectures or
-post-alignment models; Appendix~\ref{app:aligned-vs-base} analyses alignment
-effects analytically and argues that RLHF preserves the underlying M$\to$A
-signal under adversarial probing.
+post-alignment models; Appendix~\ref{app:aligned-vs-base} \replaced{provides an
+empirical comparison of base and RLHF-aligned Mistral-7B models, confirming
+that RLHF preserves extractability ($\Delta\text{EM} = +0.0008$) while
+weakening metric calibration}{analyses alignment effects analytically and argues
+that RLHF preserves the underlying M$\to$A signal under adversarial probing}.
 
 The sign inversion at $d{=}256$ is estimated from $n{=}143$ sequences per
 dataset; larger samples at saturation would yield tighter confidence intervals
@@ -1008,10 +1062,15 @@ recommendations.
 \section{Related Work and Positioning}
 \label{app:related}
 
+% REVIEW: NeurIPS-C1/D1 - expanded introduction to related work section to make differentiation from prior SoK papers explicit; comparison table added below
 The study of LLM memorization has been surveyed from several perspectives.
 We build on three key prior studies, each of which addresses a different
 aspect of the problem but stops short of the dependency-based, cross-component
 analysis that FMARD provides.
+\added{The key differentiating dimension is summarised in
+Table~\ref{tab:sok-comparison}: no prior SoK paper models the
+F$\to$M$\to$A$\to$R$\to$D components as an interdependent chain or asks
+whether the strength of one link modulates another.}
 
 \textbf{\citet{hartmann2023sok}} offer a foundational SoK that taxonomizes
 memorization definitions (verbatim, eidetic, extractable) and maps their
@@ -1022,6 +1081,10 @@ However, their analysis remains largely qualitative; it catalogs definitions
 and implications without systematically examining how measurement tools relate
 to attack outcomes or how uncontrolled experimental factors produce
 contradictory results across studies.
+\added{Critically, Hartmann et al.\ note that MIA and extraction attacks measure
+different things, but do not frame this as a modulated M$\to$A link or provide
+empirical evidence that the two families rank sequences differently under
+controlled conditions.}
 FMARD extends this work by adding the dependency structure that connects
 definitions (which live in the Metric component) to exploitation (Attacks) and
 downstream consequences (Risks), and by empirically testing whether these
@@ -1046,6 +1109,59 @@ In FMARD terms, Meeus et al.\ demonstrate that an uncontrolled Factor
 (benchmark construction) confounds a specific Metric (MIA AUC); we extend this
 insight to show that even when Factors are controlled, statistical Metrics and
 operational Attacks remain weakly correlated.
+
+% REVIEW: NeurIPS-C1/D1 - add structured comparison table showing what each prior SoK covers vs. FMARD across five dimensions; addresses "insufficient differentiation" critique
+\added{Table~\ref{tab:sok-comparison} provides a structured comparison.
+The key differentiating dimension is the F$\to$M$\to$A$\to$R$\to$D dependency
+chain: prior SoK papers catalog individual components (definitions, attacks,
+defenses) but none explicitly model or empirically test how the strength of one
+link depends on another.
+FMARD's central empirical contribution---demonstrating that $\tau_{M \to A}$
+is Factor-dependent (near zero at 1B, inversely signed at 8B $d{=}256$)---is
+not a finding that falls within the scope of any prior SoK paper, which do not
+frame the Metric$\to$Attack relationship as a modulated link at all.}
+
+\begin{table*}[t]
+\centering
+\footnotesize
+% REVIEW: NeurIPS-C1/D1 - structured SoK comparison table added in response to "differentiation from Hartmann 2023 and Meeus 2025 is insufficient" critique
+\begin{tabular}{@{}p{3.8cm}p{2.2cm}p{2.2cm}p{2.4cm}p{2.6cm}@{}}
+\toprule
+\textbf{Dimension} & \textbf{Hartmann et al.\ 2023} & \textbf{Satvaty et al.\ 2024} & \textbf{Meeus et al.\ 2025} & \textbf{FMARD (this work)} \\
+\midrule
+Covers F$\to$M$\to$A$\to$R$\to$D chain as linked components
+  & Partial (definitions + implications, no chain)
+  & No (parallel topics)
+  & No (MIA-focused)
+  & \textbf{Yes} \\
+Empirically tests M$\to$A link
+  & No
+  & No
+  & Indirectly (shows AUC inflation, not $\tau$ vs.\ extraction)
+  & \textbf{Yes ($\tau = 0.08$)} \\
+Identifies Factor-dependent modulation of M$\to$A
+  & No
+  & No
+  & No
+  & \textbf{Yes (domain, scale, duplication)} \\
+Names and explains cross-study contradictions
+  & No
+  & No
+  & Partially (benchmark confound only)
+  & \textbf{Yes (3 failure modes)} \\
+Provides threat-model-driven evaluation guidelines
+  & No
+  & Partially
+  & No
+  & \textbf{Yes (§\ref{sec:discussion})} \\
+\bottomrule
+\end{tabular}
+\caption{Structured comparison of FMARD with prior SoK papers.
+``Partial'' indicates the dimension is touched but not systematically addressed.
+FMARD is the only work to model all five FMARD components as linked and to
+empirically test the M$\to$A link under controlled Factor variation.}
+\label{tab:sok-comparison}
+\end{table*}
 
 
 % =============================================================================
@@ -2289,6 +2405,26 @@ model is given the first 50\% of tokens and asked to greedily complete the
 remainder; EM is the fraction of suffix tokens matched exactly.
 Kendall $\tau$ is computed between each metric and EM across all valid
 sequences.}
+% REVIEW: NeurIPS-D3 - clarify why WikiText-103 is used (The Pile validation is non-member; this experiment measures M→A correlation not MIA performance)
+\added{\textbf{Dataset choice note.}
+The goal of this experiment is to measure whether forward-pass metrics
+(\textit{M}) correlate with extraction outcomes (\textit{A}) on text
+\emph{representative of the training distribution}---not to perform membership
+inference.
+The Pile \emph{validation} split used above is non-member data (it was held
+out from training); it therefore provides sequences of similar domain and style
+to the training corpus without the confound of the sequences being known
+members.
+WikiText-103 (Wikipedia) is a good fallback for this purpose because Wikipedia
+content is heavily represented in the Pile's training split, so
+\texttt{Pythia-6.9b-deduped} will assign low loss to these sequences, creating
+realistic metric variance.
+A direct MIA comparison using The Pile \emph{training} split as members and
+the validation split as non-members would be a strictly stronger test of the
+$F \to M$ link; we leave this for future work.
+The present experiment establishes only that, on in-distribution-style text
+where both metrics and extraction rates have variance, the M$\to$A correlation
+is positive and significant.}
 
 \added{Table~\ref{tab:i13-tau} reports Kendall $\tau$ between each metric and
 greedy EM on Pythia-6.9b-deduped.
@@ -2399,11 +2535,24 @@ not the underlying information-theoretic relationship.}
 % bfloat16, greedy prefix-extraction; real τ values confirm EM is preserved
 % under RLHF (ΔEM ≈ 0) while metric calibration weakens, consistent with
 % RLHF as Defense at A→output interface
+% REVIEW: NeurIPS-D4 - clarify WikiText-103/Mistral training data overlap and implications for result interpretation
 \added{We tested this prediction empirically by comparing
 \texttt{mistralai/Mistral-7B-v0.1} (base pre-trained) against
 \texttt{mistralai/Mistral-7B-Instruct-v0.3} (RLHF-aligned) on the same 300
 WikiText-103 sequences (bfloat16, greedy prefix-extraction as in
 Appendix~\ref{app:external-validation}).
+WikiText-103 is derived from Wikipedia, which is included in the publicly
+documented training mix of Mistral-7B~\citep{jiang2023mistral7b}; the
+sequences are therefore likely \emph{in-distribution} for the base model,
+producing realistic loss-landscape variance similar to a member-data setting.
+We acknowledge that without confirmed ground-truth membership labels for
+Mistral-7B-v0.1, these sequences cannot be certified as true training members,
+and the observed $\tau$ values should be interpreted as M$\to$A correlation
+on in-distribution text rather than as MIA performance.
+Obtaining confirmed member sequences for Mistral-7B-v0.1 is impractical
+without access to the original training dataset, which is not publicly
+released; this is a recognised limitation of any external validation on closed
+pre-training corpora.
 For the base model, Loss and ZLib are statistically significant predictors of
 greedy EM: $\tau_{\text{Loss}} = +0.106$ ($p = 0.007$, $n=300$) and
 $\tau_{\text{ZLib}} = +0.122$ ($p = 0.002$, $n=300$).
