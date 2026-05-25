@@ -99,7 +99,7 @@ matching evaluations to specific threat models.
 
 Large language models (LLMs) memorize training data, and this memorization
 creates concrete security risks: extraction of personally identifiable
-information~\citep{carlini2021extractingtrainingdatalarge, lukas2023analyzing},
+information (PII)~\citep{carlini2021extractingtrainingdatalarge, lukas2023analyzing},
 reproduction of copyrighted
 content~\citep{carlini2023quantifyingmemorizationneurallanguage,
 henderson2023foundation}, and contamination of evaluation
@@ -605,7 +605,8 @@ opposite directions through the chain; the domain-dependent $\tau_b$ variation
 \S\ref{sec:empirical}) confirms this prediction, distinguishing FMARD from
 post-hoc labelling of patterns already visible in the data.}
 Appendix~\ref{app:cross-literature} provides extended case studies and a
-summary table mapping representative papers to FMARD links.
+summary table mapping representative papers to FMARD links
+(Table~\ref{tab:cross-lit-summary}).
 
 
 % -----------------------------------------------------------------------------
@@ -999,9 +1000,9 @@ relevant Factors, and match evaluations to a threat model.
 
 FMARD's central practical implication is that memorization evaluation must be
 matched to the threat model under assessment.
-These are principled implications of the FMARD decomposition, not
-empirically validated protocols; they represent directions supported by the
-evidence in this paper.
+Table~\ref{tab:guidelines} summarizes protocols for three representative use
+cases; these are principled implications of the FMARD decomposition, not
+empirically validated protocols.
 
 \begin{table}[t]
 \centering
@@ -2425,7 +2426,7 @@ Table~\ref{tab:pii-forward-tau} reports mean $|\tau_b|$ between each
 forward-pass metric and per-field infill accuracy.
 The strongest signal is UUID (\texttt{full\_prefix}) at $|\tau_b| = 0.19$ for Loss and
 Min-K\%~--- far below the intra-family agreement between Loss and Min-K\%
-($\tau_b > 0.63$ at all duplication levels, Table~\ref{tab:within-level-heatmaps-data}).
+($\tau_b > 0.63$ at all duplication levels, Table~\ref{tab:across-within-gap}).
 Fields with predictable structure (email) or low extraction rate (occupation)
 yield $|\tau_b| < 0.08$.
 The M$\to$A disconnect therefore holds at the PII-field level: knowing a
